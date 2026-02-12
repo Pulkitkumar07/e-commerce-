@@ -1,17 +1,18 @@
-import express from 'express';
-import {addProduct, deleteProducts, editProducts, fetchAllProducts, handleImageUpload} from '../controllers/admin/product-control.js';
-import { upload } from '../services/cloudinary.js';
+import express from "express";
+import multer from "multer";
+import {
+  createProduct,
+  fetchAllProducts,
+  editProducts,
+  deleteProducts,
+} from "../controllers/admin/product-control.js";
+
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
-router.post(
-  "/upload-image",
-  upload.single("image"),
-  handleImageUpload
-);
-router.post("/add",addProduct)
-router.put("/edit/:id",editProducts)
-router.delete("/delete/:id",deleteProducts)
-router.get("/get",fetchAllProducts)
-
+router.post("/add", upload.single("image"), createProduct);
+router.get("/get", fetchAllProducts);
+router.put("/edit/:id", upload.single("image"), editProducts);
+router.delete("/delete/:id", deleteProducts);
 
 export default router;

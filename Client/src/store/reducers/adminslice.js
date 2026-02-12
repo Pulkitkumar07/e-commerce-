@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  products: [],      // ✅ lowercase
+  products: [],      
   isLoading: false,
   error: null,
 };

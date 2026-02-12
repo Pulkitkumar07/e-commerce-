@@ -52,7 +52,7 @@ export const asyncGetuserProfile = () => async (dispatch) => {
   try{
    const res = await axios.get("/api/auth/profile", { withCredentials: true });
    const user = res.data.user;
-   console.log("user profile:",user);
+   
    
    dispatch(loaduser(user));
 
