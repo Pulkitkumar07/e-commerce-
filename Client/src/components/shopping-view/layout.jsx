@@ -8,7 +8,7 @@ const layout = () => {
     <div className='flex flex-col bg-white overflow-hidden'>
         {/* shopping view layout */}
         <ShoppingHeader />
-        <main className='flex flex-col w-full '>
+        <main className='flex mt-13 flex-col w-full '>
             <Outlet />
         </main>
 

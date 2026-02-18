@@ -37,7 +37,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+    <header className=" fixed top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 md:px-8">
 
         {/* Logo */}
@@ -131,7 +131,7 @@ const Header = () => {
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="flex flex-col gap-6 mt-6">
+              <div className="flex flex-col gap-5 mt-6">
                 {menuItems.map((item) => (
                   <Link
                     key={item.id}

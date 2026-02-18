@@ -6,7 +6,7 @@ import { asyncDeleteProduct } from "../../store/actions/adminaction.jsx";
 
 const ProductLists = () => {
   const dispatch = useDispatch();
-  const products = useSelector((state) => state.product.products);
+  const products = useSelector((state) => state.adminProduct.products);
 
   useEffect(() => {
     dispatch(asyncFetchProducts());

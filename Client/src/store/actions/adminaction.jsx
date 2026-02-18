@@ -7,7 +7,7 @@ import {
   addProduct,
   loadProducts,
 } from "../reducers/adminslice.js";
-import { removeuser } from "../reducers/userSlice.js";
+
 
 
 export const asyncCreateProduct = (formData) => async (dispatch) => {
