@@ -1,11 +1,7 @@
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { get } from 'mongoose';
 
-
-
-// User Registration Controller
 
 export const registerUser = async (req, res) => {
 
@@ -32,7 +28,6 @@ export const registerUser = async (req, res) => {
 
 }
 
-// User Login Controller
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
@@ -78,7 +73,6 @@ export const logoutUser = (req, res) => {
     });
     res.status(200).json({ message: 'Logged out successfully' });
 }
-
 
 export const getuserprofile = async (req, res) => {
     try {

@@ -1,6 +1,6 @@
-import React from "react";
-import { HousePlug, Menu, ShoppingBag, ShoppingCart } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { HousePlug, Menu, ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -11,15 +11,23 @@ import {
   SheetDescription,
 } from "../ui/sheet";
 import { useSelector, useDispatch } from "react-redux";
-import { asyncLogoutUser } from "../../store/actions/userAction.jsx"; // adjust path
+import { asyncLogoutUser } from "../../store/actions/userAction.jsx";
+import CartWrapper from "./cartWrapper";
+import { fetchCartItems } from "@/store/actions/cartAction";
 
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [openCartSheet, setOpenCartSheet] = useState(false);
 
-  const { isAuthenticated, user } = useSelector(
-    (state) => state.user
-  );
+  const { isAuthenticated, user } = useSelector((state) => state.user);
+  const { cartItems } = useSelector((state) => state.cartProduct);
+
+  useEffect(() => {
+    if (user?._id) {
+      dispatch(fetchCartItems(user._id));
+    }
+  }, [user?._id, dispatch]);
 
   const handleLogout = () => {
     dispatch(asyncLogoutUser());
@@ -27,53 +35,81 @@ const Header = () => {
   };
 
   const menuItems = [
-    { id: "home", label: "Home", path: "/shop/home" },
-    { id: "men", label: "Men", path: "/shop/listing" },
-    { id: "women", label: "Women", path: "/shop/listing" },
-    { id: "kids", label: "Kids", path: "/shop/listing" },
-    { id: "home", label: "Home", path: "/shop/listing" },
-    { id: "footwear", label: "Footwear", path: "/shop/listing" },
-    { id: "accessories", label: "Accessories", path: "/shop/listing" },
+    { id: "home", label: "Home" },
+    { id: "Men's", label: "Men" },
+    { id: "Women", label: "Women" },
+    { id: "Kids", label: "Kids" },
+    { id: "Footwear", label: "Footwear" },
+    { id: "Accessories", label: "Accessories" },
   ];
 
+  const handleNavigate = (id) => {
+    sessionStorage.removeItem("filters");
+    if (id === "home") {
+      navigate("/shop/home");
+      return;
+    }
+
+    
+    sessionStorage.setItem(
+      "filters",
+      JSON.stringify({ category: [id] })
+    );
+
+    navigate(`/shop/listing?category=${id}`);
+  };
+
   return (
-    <header className=" fixed top-0 z-50 w-full border-b bg-white shadow-sm">
+    <header className="fixed top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 md:px-8">
 
-        {/* Logo */}
-        <Link to="/shop/home" className="flex items-center gap-2">
+       
+        <button
+          onClick={() => handleNavigate("home")}
+          className="flex items-center gap-2"
+        >
           <HousePlug className="h-6 w-6" />
           <span className="text-lg font-bold">E-Commerce</span>
-        </Link>
+        </button>
 
-
+ 
         <nav className="hidden lg:flex items-center gap-8">
           {menuItems.map((item) => (
-            <Link
+            <button
               key={item.id}
-              to={item.path}
+              onClick={() => handleNavigate(item.id)}
               className="text-sm font-medium hover:text-blue-600 transition"
             >
               {item.label}
-            </Link>
+            </button>
           ))}
         </nav>
 
+        <div className="flex items-center gap-4">
 
-        <div className=" flex items-center gap-4">
+         
+          <Sheet open={openCartSheet} onOpenChange={setOpenCartSheet}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <ShoppingCart className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
 
+            <SheetContent side="right" className="w-full sm:max-w-md">
+              <SheetHeader>
+                <SheetTitle>Your Cart</SheetTitle>
+                <SheetDescription>
+                  Items added to your cart
+                </SheetDescription>
+              </SheetHeader>
 
-          <div className="hidden lg:block relative">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigate("/shop/cart")}
-            >
-              <ShoppingCart className="h-5 w-5" />
-            </Button>
-          </div>
+              <div className="mt-6">
+                <CartWrapper cartItems={cartItems} />
+              </div>
+            </SheetContent>
+          </Sheet>
 
-
+          {/* Profile */}
           {isAuthenticated ? (
             <Sheet>
               <SheetTrigger asChild>
@@ -82,7 +118,7 @@ const Header = () => {
                 </Button>
               </SheetTrigger>
 
-              <SheetContent side="right" className="w-60 h-70   rounded-l-sm shadow-lg p-6">
+              <SheetContent side="right" className="w-60 p-6">
                 <SheetHeader>
                   <SheetTitle>Profile</SheetTitle>
                   <SheetDescription>
@@ -90,8 +126,7 @@ const Header = () => {
                   </SheetDescription>
                 </SheetHeader>
 
-                <div className="mt-6 h-fit flex flex-col gap-4">
-
+                <div className="mt-6 flex flex-col gap-4">
                   <Button
                     variant="outline"
                     onClick={() => navigate("/shop/account")}
@@ -105,12 +140,11 @@ const Header = () => {
                   >
                     Logout
                   </Button>
-
                 </div>
               </SheetContent>
             </Sheet>
           ) : (
-            <Button onClick={() => navigate("login")}>
+            <Button onClick={() => navigate("/auth/login")}>
               Login
             </Button>
           )}
@@ -133,13 +167,13 @@ const Header = () => {
 
               <div className="flex flex-col gap-5 mt-6">
                 {menuItems.map((item) => (
-                  <Link
+                  <button
                     key={item.id}
-                    to={item.path}
-                    className="text-base font-medium hover:text-blue-600 transition"
+                    onClick={() => handleNavigate(item.id)}
+                    className="text-base font-medium hover:text-blue-600 transition text-left"
                   >
                     {item.label}
-                  </Link>
+                  </button>
                 ))}
               </div>
             </SheetContent>

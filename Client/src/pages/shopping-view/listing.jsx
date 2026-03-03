@@ -8,97 +8,109 @@ import {
 import Filter from "../../components/shopping-view/filter.jsx";
 import { Button } from "@/components/ui/button";
 import { ArrowDownUp } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { asyncFetchProducts } from "@/store/actions/productaction.jsx";
+import { asyncFetchProductDetails, asyncFetchProducts } from "@/store/actions/productaction.jsx";
 import Productlist from "../shopping-view/productlist";
+import { useSearchParams } from "react-router-dom";
+import ProductDetails from '../../components/shopping-view/productDetails.jsx'
+import { toast } from "react-toastify";
+import { addtoCart } from "../../store/actions/cartAction.jsx";
 
 const ShoppingListing = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.shopProduct.products);
-  const [filters, setFilters] = useState({
-    category: [],
-    brand: [],
-    price: null,
-  });
+  const productDetails=useSelector((state)=>state.shopProduct.productDetails)
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const user = JSON.parse(localStorage.getItem("user")) || null;
 
-  const [sortOption, setSortOption] = useState("");
+  const filters = {
+    category: searchParams.get("category")?.split(",") || [],
+    brand: searchParams.get("brand")?.split(",") || [],
+    price: searchParams.get("price") || null,
+  };
+  const sortOption = searchParams.get("sort") || "price-low";
+  const [openDetails,setDetailsOpen]=useState(false);
 
   useEffect(() => {
-    dispatch(asyncFetchProducts());
-  }, [dispatch]);
-
-  useEffect(()=>{
-
-  })
-
-  const sortedProducts = [...(products || [])].sort((a, b) => {
-    switch (sortOption) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "title-asc":
-        return a.title.localeCompare(b.title);
-      case "title-desc":
-        return b.title.localeCompare(a.title);
-      default:
-        return 0;
-    }
-  });
+    dispatch(asyncFetchProducts(filters, sortOption));
+  }, [searchParams]);
 
   const handlerFilter = (section, option) => {
+    const newParams = new URLSearchParams(searchParams);
 
-    setFilters((prev) => {
-      const updatedFilters = { ...prev };
-      if (section === "price") {
-        updatedFilters.price = option;
+    if (section === "price") {
+      if (newParams.get("price") === option) {
+        newParams.delete("price");
       } else {
-        // category & brand multi select
-        if (updatedFilters[section].includes(option)) {
-          // agar already selected hai → remove
-          updatedFilters[section] = updatedFilters[section].filter(
-            (item) => item !== option
-          );
-        } else {
-          // agar selected nahi hai → add
-          updatedFilters[section] = [
-            ...updatedFilters[section],
-            option,
-          ];
-        }
+        newParams.set("price", option);
       }
-      return updatedFilters;
-    })
-   sessionStorage.setItem("filters",JSON.stringify(filters))
-  }
-  useEffect(()=>{
-  setSortOption('Price: Low to High')
-  setFilters(JSON.parse(sessionStorage.getItem("filters")||{}))
-  },[])
-  
+    } else {
+      const current = newParams.get(section)?.split(",") || [];
 
-  
-  const clearFilters = () => {
-    setFilters({
-      category: [],
-      brand: [],
-      price: null,
-    });
+      if (current.includes(option)) {
+        const updated = current.filter((item) => item !== option);
+
+        if (updated.length > 0) {
+          newParams.set(section, updated.join(","));
+        } else {
+          newParams.delete(section);
+        }
+      } else {
+        newParams.set(section, [...current, option].join(","));
+      }
+    }
+
+    setSearchParams(newParams);
+  };
+  const handleSortChange = (value) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("sort", value);
+    setSearchParams(newParams);
   };
 
+  const clearFilters = () => {
+    setSearchParams({});
+  };
+  
+  
 
+  useEffect(()=>{
+  if(productDetails!==null) setDetailsOpen(true)
+  },[productDetails])
+
+  const handleProductDetails=(id)=>{
+   dispatch(asyncFetchProductDetails(id))
+  }
+const handleAddToCart = (productId) => {
+
+  if (!user?.id) {
+    toast.error("Please login first");
+    return;
+  } 
+  console.log("Adding to cart:", { userId: user.id, productId, quantity: 1 });
+
+  if (!productId) return;
+
+  dispatch(addtoCart(user.id, productId, 1));
+  toast.success("Product added to cart!");
+};
+
+
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 p-4 md:p-6">
 
+      <Filter
+        filters={filters}
+        clearFilters={clearFilters}
+        handleFilter={handlerFilter}
+      />
 
-      <Filter filters={filters} clearFilters={clearFilters} handleFilter={handlerFilter} />
+      <div className="bg-background w-full shadow-sm">
 
-
-      <div className="bg-background w-full  shadow-sm">
-
-
+        {/* Header */}
         <div className="p-4 border-b flex items-center justify-between">
 
           <h2 className="text-xl font-bold">
@@ -108,37 +120,32 @@ const ShoppingListing = () => {
           <div className="flex items-center gap-4">
 
             <span className="text-muted-foreground">
-              {sortedProducts.length} Products
+              {products?.length || 0} Products
             </span>
-
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2"
-                >
-                  <ArrowDownUp className="h-4 w-4" />
+                <Button variant="outline" size="sm">
+                  <ArrowDownUp className="h-4 w-4 mr-2" />
                   Sort By
                 </Button>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end" className="w-[200px] mt-2">
 
-                <DropdownMenuItem onClick={() => setSortOption("price-low")}>
+                <DropdownMenuItem onClick={() => handleSortChange("price-low")}>
                   Price: Low to High
                 </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={() => setSortOption("price-high")}>
+                <DropdownMenuItem onClick={() => handleSortChange("price-high")}>
                   Price: High to Low
                 </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={() => setSortOption("title-asc")}>
+                <DropdownMenuItem onClick={() => handleSortChange("title-asc")}>
                   Title: A to Z
                 </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={() => setSortOption("title-desc")}>
+                <DropdownMenuItem onClick={() => handleSortChange("title-desc")}>
                   Title: Z to A
                 </DropdownMenuItem>
 
@@ -148,14 +155,17 @@ const ShoppingListing = () => {
           </div>
         </div>
 
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-2">
-          <Productlist products={sortedProducts} />
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
+          <Productlist products={products} handleProductDetails={handleProductDetails} handleAddToCart={handleAddToCart}  />
         </div>
 
       </div>
+      <ProductDetails open={openDetails}  setDetailsOpen={setDetailsOpen} productDetails={productDetails} 
+ />
     </div>
   );
 };
+
 
 export default ShoppingListing;

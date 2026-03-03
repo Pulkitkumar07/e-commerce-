@@ -11,7 +11,10 @@ import ProductLists from "./product-tile.jsx";
 
 const Product = () => {
   const dispatch = useDispatch();
-  const { isLoading } = useSelector((state) => state.product);
+  const { isLoading } = useSelector(
+  (state) => state.adminProduct
+);
+
 
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -125,22 +128,22 @@ const Product = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[11px] font-bold text-gray-500 uppercase">Category</label>
-                <Input className="rounded-none" placeholder="Men, Women..." {...register("category", { required: true })} />
+                <Input className="rounded-none capitalize" placeholder="Men, Women..." {...register("category", { required: true })} />
               </div>
               <div className="space-y-1">
                 <label className="text-[11px] font-bold text-gray-500 uppercase">Brand</label>
-                <Input className="rounded-none" placeholder="HRX, Roadster..." {...register("brand", { required: true })} />
+                <Input className="rounded-none capitalize" placeholder="HRX, Roadster..." {...register("brand", { required: true })} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[11px] font-bold text-gray-500 uppercase">MRP (Price)</label>
-                <Input type="number" className="rounded-none" placeholder="0.00" {...register("price", { required: true })} />
+                <Input type="number" className=" rounded-none capitalize" placeholder="0.00" {...register("price", { required: true })} />
               </div>
               <div className="space-y-1">
                 <label className="text-[11px] font-bold text-gray-500 uppercase">Stock Units</label>
-                <Input type="number" className="rounded-none" placeholder="Quantity" {...register("stock", { required: true })} />
+                <Input type="number" className="rounded-none capitalize" placeholder="Quantity" {...register("stock", { required: true })} />
               </div>
             </div>
 
@@ -154,7 +157,7 @@ const Product = () => {
             {showSalePrice && (
               <div className="space-y-1 animate-in fade-in slide-in-from-top-1">
                 <label className="text-[11px] font-bold text-[#ff3f6c] uppercase">Discounted Price</label>
-                <Input type="number" className="rounded-none border-pink-100" {...register("salePrice")} />
+                <Input type="number" className="rounded-none capitalize border-pink-100" {...register("salePrice")} />
               </div>
             )}
           </div>

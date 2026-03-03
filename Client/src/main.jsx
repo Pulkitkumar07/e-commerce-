@@ -16,16 +16,20 @@ createRoot(document.getElementById("root")).render(
       <Provider store={store}>
         <App />
         <ToastContainer
-          position="bottom-right"
-          autoClose={3000}
-          pauseOnHover
+          position="top-right"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop
           closeOnClick
+          pauseOnHover
           draggable
-          theme="dark"
+          theme="white"
+          style={{ width: "380px" }}   
           toastClassName={() =>
-            "bg-white text-black border border-black rounded-lg px-4 py-3"
+            "bg-white text-black   rounded-sm shadow-2xl px-5 py-4 w-full"
           }
           bodyClassName="text-sm font-medium"
+          progressClassName="bg-gradient-to-r from-blue-500 to-purple-500"
         />
       </Provider>
     </BrowserRouter>

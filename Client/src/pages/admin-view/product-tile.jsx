@@ -73,18 +73,31 @@ const ProductLists = () => {
               {prod.title}
             </p>
             
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-[13px] font-bold text-gray-900">₹{prod.price}</span>
-              {prod.salePrice && (
-                <>
-                  <span className="text-[11px] text-gray-400 line-through">₹{prod.salePrice}</span>
-                  <span className="text-[11px] font-bold text-orange-500">
-                    ({Math.round(((prod.salePrice - prod.price) / prod.salePrice) * 100)}% OFF)
-                  </span>
-                </>
-              )}
-            </div>
+           <div className="flex items-center gap-2 mt-1">
 
+  {prod.salePrice ? (
+    <>
+      {/* Original Price */}
+      <span className="text-[11px] text-gray-400 line-through">
+        ₹{prod.price}
+      </span>
+
+      {/* Final Payment Price */}
+      <span className="text-[13px] font-bold text-gray-900">
+        ₹{prod.salePrice}
+      </span>
+
+      <span className="text-[11px] font-bold text-orange-500">
+        ({Math.round(((prod.price - prod.salePrice) / prod.price) * 100)}% OFF)
+      </span>
+    </>
+  ) : (
+    <span className="text-[13px] font-bold text-gray-900">
+      ₹{prod.price}
+    </span>
+  )}
+
+</div>
    
             <p className={`text-[10px] font-bold uppercase tracking-tighter mt-1 ${prod.stock < 10 ? 'text-[#ff3f6c]' : 'text-gray-400'}`}>
               {prod.stock < 10 ? `Only ${prod.stock} left!` : `Units: ${prod.stock}`}
