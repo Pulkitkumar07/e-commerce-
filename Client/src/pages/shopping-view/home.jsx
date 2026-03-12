@@ -31,7 +31,7 @@ const ShoppingHome = () => {
     { id: "Footwear", label: "Footwear", icon: UmbrellaIcon }
   ];
 
-  // Auto-slider for Banner
+ 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -59,7 +59,7 @@ const ShoppingHome = () => {
   const handleAddtoCart = (id) => {
     const user = JSON.parse(localStorage.getItem("user")) || null;
     if (!user?.id) {
-      toast.error("Please login first");
+      toast.error("Please login first"); 
       return;
     } 
     console.log("Adding to cart:", { userId: user.id, productId: id, quantity: 1 });

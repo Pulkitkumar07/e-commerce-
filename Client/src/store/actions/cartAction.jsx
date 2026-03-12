@@ -37,6 +37,7 @@ export const fetchCartItems = (userId) => async (dispatch) => {
     }
 }
 export const deleteCartItem = (userId, productId) => async (dispatch) => {
+    console.log("Deleting from cart:", { userId, productId });
     dispatch(cartStart());
     try {
         const response = await axios.delete(`/api/shop/cart/delete/${userId}/${productId}`);

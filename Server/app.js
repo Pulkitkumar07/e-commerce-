@@ -6,7 +6,7 @@ import authRoutes from "./src/routers/authRoutes.js";
 import adminRoutes from "./src/routers/adminRoutes.js";
 import shopRoutes from './src/routers/productRotues.js'
 import cartRoutes from './src/routers/cartRoutes.js';
-
+import addressRoutes from './src/routers/addressRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -25,5 +25,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin/products", adminRoutes);
 app.use('/api/shop/products',shopRoutes)
 app.use('/api/shop/cart',cartRoutes)
+app.use('/api/shop/address',addressRoutes)
 
 export default app;
