@@ -4,7 +4,7 @@ import Login from "../pages/auth/login.jsx";
 import Register from "../pages/auth/register.jsx";
 import AdminLayout from "@/components/admin-view/layout.jsx";
 import Dashboard from "../pages/admin-view/dashboard.jsx";
-import Orders from "../pages/admin-view/orders.jsx";
+import Orders from "../pages/admin-view/Adminorders.jsx";
 import Products from "../pages/admin-view/product.jsx";
 import Features from "../pages/admin-view/features.jsx";
 import ShoppingLayout from "../components/shopping-view/layout.jsx";
@@ -18,7 +18,11 @@ import UnauthPage from "../pages/unauth-page/index.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { asyncGetuserProfile } from "@/store/actions/userAction.jsx";
-
+import PaypalReturn from "@/components/shopping-view/paypal.jsx";
+import PaymentSuccess from "@/components/shopping-view/payment-success.jsx";
+import SearchPage from "@/pages/shopping-view/searchPage.jsx";
+import About from "@/pages/shopping-view/about.jsx";
+import ContactPage from '../pages/shopping-view/contactPage.jsx'
 const MainRoutes = () => {
 
  const dispatch=useDispatch(); 
@@ -74,6 +78,12 @@ const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
         <Route path="listing" element={<ShoppingListing />} />
         <Route path="checkout" element={<ShoppingCheckout />} />
         <Route path="account" element={<ShoppingAccount />} />
+        <Route path="paypal-return" element={<PaypalReturn />} />
+        <Route path="payment-success" element={<PaymentSuccess />} />
+        <Route path="search" element={<SearchPage/>}/>
+        <Route path="about" element={<About/>}/>
+        <Route path="contact" element={<ContactPage/>}/>
+
       </Route>
 
       <Route path="/unauth-page" element={<UnauthPage />} />

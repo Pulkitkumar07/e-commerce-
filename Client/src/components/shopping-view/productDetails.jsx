@@ -86,8 +86,9 @@ const ProductDetails = ({ open, setDetailsOpen, productDetails }) => {
               </div>
 
               {/* Rating */}
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
+              <div className="flex  justify-between items-center gap-1">
+              <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
                   <StarIcon
                     key={i}
                     className="w-4 h-4 sm:w-5 sm:h-5 fill-primary"
@@ -98,8 +99,25 @@ const ProductDetails = ({ open, setDetailsOpen, productDetails }) => {
                 </span>
               </div>
 
+                  <div>
+                   {productDetails?.stock > 0 ? (
+                     <p className="text-white rounded-sm p-1 text-sm font-medium bg-gray-900">
+                       {productDetails?.stock >0 && productDetails?.stock < 5
+                         ? `Only ${productDetails?.stock} left`
+                         : "In Stock"}
+                     </p>
+                   ) : (
+                     <p className="text-red-500 font-medium">Out of Stock</p>
+                   )}
+               </div>
+              </div>
+
+             
+
               {/* Add To Cart */}
-              <Button onClick={handleAddToCart} className="w-full">
+              <Button onClick={handleAddToCart} 
+              disabled={productDetails?.stock === 0}
+              className="w-full">
                 Add To Cart
               </Button>
 
@@ -133,7 +151,7 @@ const ProductDetails = ({ open, setDetailsOpen, productDetails }) => {
                 </div>
               </div>
 
-              {/* Review Input */}
+             
               <div className="mt-4 flex gap-2">
                 <input
                   type="text"

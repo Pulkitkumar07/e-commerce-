@@ -55,8 +55,6 @@ export const addToCart = async (req, res) => {
 };
 
 
-
-
 export const fetchCartItem = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -71,7 +69,10 @@ export const fetchCartItem = async (req, res) => {
     });
 
     if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
+      return res.status(200).json({
+        success: true,
+        cartItems: [], 
+      });
     }
 
     const validCartItems = cart.items.filter(
@@ -103,8 +104,6 @@ export const fetchCartItem = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
 
 
 export const updateCartItemQty = async (req, res) => {
@@ -163,8 +162,6 @@ export const updateCartItemQty = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
 
 
 export const deleteCartItem = async (req, res) => {

@@ -10,10 +10,9 @@ import { updateCartItemQty } from "../../store/actions/cartAction.jsx";
 const CartContent = ({ cartItem }) => {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.user?._id)
+  const Product = useSelector((state) => state.shopProduct.products);
 
-
-
-  console.log("userId in CartContent:", userId);
+  
 
 
   const HandleDeleteFromCart = () => {
@@ -24,17 +23,35 @@ const CartContent = ({ cartItem }) => {
   }
   const HandleUpdateQty = (productId, action) => {
 
-    if (action === "plus") {
-      dispatch(updateCartItemQty(userId, productId, cartItem.quantity + 1));
-      toast.success("Cart item quantity updated successfully!");
-    } else if (action === "minus" && cartItem.quantity > 1) {
-      dispatch(updateCartItemQty(userId, productId, cartItem.quantity - 1));
-      toast.success("Cart item quantity updated successfully!");
-    } else {
-      dispatch(deleteCartItem(userId, productId));
-      toast.success("Item removed from cart successfully!");
+ 
+  const product = Product?.find(
+    (p) => p._id === productId
+  );
+
+  const stock = product?.stock || 0;
+
+  if (action === "plus") {
+
+    // ✅ STOCK CHECK
+    if (cartItem.quantity + 1 > stock) {
+      toast.error(`Only ${stock} items available`);
+      return;
     }
+
+    dispatch(updateCartItemQty(userId, productId, cartItem.quantity + 1));
+    toast.success("Cart item quantity updated successfully!");
+
+  } else if (action === "minus" && cartItem.quantity > 1) {
+
+    dispatch(updateCartItemQty(userId, productId, cartItem.quantity - 1));
+    toast.success("Cart item quantity updated successfully!");
+
+  } else {
+
+    dispatch(deleteCartItem(userId, productId));
+    toast.success("Item removed from cart successfully!");
   }
+};
 
   return (
     <div className="flex  items-center gap-4 border-b pb-2">
@@ -70,7 +87,7 @@ const CartContent = ({ cartItem }) => {
           </span>
 
           <Button
-            onClick={() => HandleUpdateQty(cartItem.productId, "plus")}
+            onClick={() => HandleUpdateQty(cartItem.productId, "plus",)}
             variant="outline" size="sm" className="w-8 h-8 p-0">
             +
           </Button>

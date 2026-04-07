@@ -13,16 +13,19 @@ import { useNavigate } from 'react-router-dom'
 import ProductDetails from '../../components/shopping-view/productDetails.jsx'
 import { addtoCart } from "../../store/actions/cartAction.jsx"
 import { toast } from "react-toastify"
+import { Link } from "react-router-dom";
+import { asyncGetuserProfile } from '../../store/actions/userAction.jsx'
 
 const ShoppingHome = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const images = [Img1, Img2, Img3, Img4, Img5, Img6];
   const { products, productDetails } = useSelector((state) => state.shopProduct);
   const [openDetails, setDetailsOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const userId = useSelector((state) => state.user.user._id)
   const Categories = [
     { id: "Men's", label: "Men", icon: ShirtIcon },
     { id: "Women", label: "Women", icon: CloudLightning },
@@ -30,8 +33,10 @@ const ShoppingHome = () => {
     { id: "Accessories", label: "Accessories", icon: WatchIcon },
     { id: "Footwear", label: "Footwear", icon: UmbrellaIcon }
   ];
+  useEffect(() => {
+    dispatch(asyncGetuserProfile());
+  }, [dispatch]);
 
- 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -39,7 +44,7 @@ const ShoppingHome = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  // Fetch Products on Mount
+
   useEffect(() => {
     dispatch(asyncFetchProducts({ filters: {}, sortOption: null }));
   }, [dispatch]);
@@ -57,37 +62,39 @@ const ShoppingHome = () => {
   };
 
   const handleAddtoCart = (id) => {
-    const user = JSON.parse(localStorage.getItem("user")) || null;
-    if (!user?.id) {
-      toast.error("Please login first"); 
+
+
+    if (!userId) {
+      toast.error("Please login first");
       return;
-    } 
-    console.log("Adding to cart:", { userId: user.id, productId: id, quantity: 1 });
-    dispatch(addtoCart(user.id, id, 1));
+    }
+    console.log("Adding to cart:", { userId: userId, productId: id, quantity: 1 });
+    dispatch(addtoCart(userId, id, 1));
     toast.success("Product added to cart!");
   };
+
 
   return (
     <div className='flex flex-col min-h-screen'>
       {/* Banner Section */}
       <div className='relative w-full h-[300px] md:h-[600px] overflow-hidden'>
         {images.map((img, index) => (
-          <img 
-            key={index} 
-            src={img} 
-            alt={`Banner ${index + 1}`} 
-            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`} 
+          <img
+            key={index}
+            src={img}
+            alt={`Banner ${index + 1}`}
+            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
           />
         ))}
         <Button
           onClick={() => setCurrentIndex((currentIndex - 1 + images.length) % images.length)}
-          variant='outline' size='icon' 
+          variant='outline' size='icon'
           className="absolute top-1/2 left-4 transform bg-white/80 hover:bg-white text-black -translate-y-1/2">
           <ChevronLeft className='w-6 h-6' />
         </Button>
         <Button
           onClick={() => setCurrentIndex((currentIndex + 1) % images.length)}
-          variant='outline' size='icon' 
+          variant='outline' size='icon'
           className="absolute top-1/2 right-4 transform bg-white/80 hover:bg-white text-black -translate-y-1/2">
           <ChevronLeft className='w-6 h-6 rotate-180' />
         </Button>
@@ -101,7 +108,7 @@ const ShoppingHome = () => {
             {Categories.map((category) => (
               <div
                 onClick={() => HandleNavigateToListingPage(category, 'category')}
-                key={category.id} 
+                key={category.id}
                 className='flex flex-col items-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100'>
                 <category.icon className='w-12 h-12 text-primary mb-4' />
                 <span className='text-lg font-medium'>{category.label}</span>
@@ -111,7 +118,7 @@ const ShoppingHome = () => {
         </div>
       </section>
 
-      {/* Featured Products Section */}
+
       <section className='py-12'>
         <div className='container mx-auto px-4'>
           <h2 className='text-3xl font-bold text-center mb-8'>Featured Products</h2>
@@ -129,8 +136,8 @@ const ShoppingHome = () => {
                   <div className='mt-4 text-center'>
                     <h3 className='text-lg font-semibold truncate'>{product.title}</h3>
                     <h4 className='text-xl font-bold text-gray-900 mt-1'>₹{product.price}</h4>
-                    <Button 
-                      className='mt-4 w-full bg-black text-white hover:bg-gray-800 transition-colors' 
+                    <Button
+                      className='mt-4 w-full bg-black text-white hover:bg-gray-800 transition-colors'
                       onClick={() => handleAddtoCart(product._id)}>
                       Add to Cart
                     </Button>
@@ -144,11 +151,93 @@ const ShoppingHome = () => {
         </div>
       </section>
 
-      
-      <ProductDetails 
-        open={openDetails} 
-        setDetailsOpen={setDetailsOpen} 
-        productDetails={productDetails} 
+      <footer className="bg-black text-white mt-16">
+        <div className="container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+
+
+          <div>
+            <h2 className="text-2xl font-bold mb-4">ShopEase</h2>
+            <p className="text-gray-400">
+              Your one-stop shop for all trending products. Quality & affordability guaranteed.
+            </p>
+          </div>
+
+
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2 text-gray-400">
+
+              <li>
+                <Link
+                  to="/shop/home"
+                  onClick={() => window.scrollTo(0, 0)}
+                >
+                  Home
+                </Link>
+              </li>
+
+              <li>
+                <Link to="/shop/listing" className="hover:text-white">
+                  Shop
+                </Link>
+              </li>
+
+              <li>
+                <Link to="/shop/about" className="hover:text-white">
+                  About
+                </Link>
+              </li>
+
+              <li>
+                <Link to="/shop/contact" className="hover:text-white">
+                  Contact
+                </Link>
+              </li>
+
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Categories</h3>
+            <ul className="space-y-2 text-gray-400">
+              <li className="hover:text-white cursor-pointer">Electronics</li>
+              <li className="hover:text-white cursor-pointer">Fashion</li>
+              <li className="hover:text-white cursor-pointer">Home</li>
+              <li className="hover:text-white cursor-pointer">Beauty</li>
+            </ul>
+          </div>
+
+        
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Stay Updated</h3>
+            <p className="text-gray-400 mb-4">
+              Subscribe to get latest offers & updates.
+            </p>
+            <div className="flex">
+              <input
+                type="email"
+                placeholder="Enter email"
+             className="w-full px-3 py-2 rounded-l-md bg-black text-white border border-white"
+              />
+              <button className="bg-white text-black px-4 rounded-r-md hover:bg-gray-200">
+                Subscribe
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        {/* 🔻 Bottom */}
+        <div className="border-t border-gray-800 py-4 text-center text-gray-500 text-sm">
+          © {new Date().getFullYear()} ShopEase. All rights reserved.
+        </div>
+      </footer>
+
+
+      <ProductDetails
+        open={openDetails}
+        setDetailsOpen={setDetailsOpen}
+        productDetails={productDetails}
       />
     </div>
   );

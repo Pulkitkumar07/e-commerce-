@@ -30,7 +30,7 @@ const Login = () => {
     console.log("LOGIN DATA 👉", data);
 
     try {
-      await dispatch(asyncloginUser(data));
+      dispatch(asyncloginUser(data));
       
       navigate("/shop/home");
     } catch (err) {

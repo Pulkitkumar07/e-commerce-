@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { HousePlug, Menu, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
@@ -29,6 +29,7 @@ const Header = () => {
     }
   }, [user?._id, dispatch]);
 
+
   const handleLogout = () => {
     dispatch(asyncLogoutUser());
     navigate("/auth/login");
@@ -36,21 +37,35 @@ const Header = () => {
 
   const menuItems = [
     { id: "home", label: "Home" },
+    { id: "products", label: " Products" },
     { id: "Men's", label: "Men" },
     { id: "Women", label: "Women" },
     { id: "Kids", label: "Kids" },
     { id: "Footwear", label: "Footwear" },
     { id: "Accessories", label: "Accessories" },
+    { id: "Search", label: "Search" }
   ];
 
   const handleNavigate = (id) => {
     sessionStorage.removeItem("filters");
+
     if (id === "home") {
       navigate("/shop/home");
       return;
     }
 
-    
+     if(id==="Search"){
+        navigate("/shop/search")
+        return ;
+      }
+
+    // 👇 PRODUCTS tab fix
+    if (id === "products") {
+      navigate("/shop/listing"); // no category filter
+      return;
+     
+    }
+
     sessionStorage.setItem(
       "filters",
       JSON.stringify({ category: [id] })
@@ -63,16 +78,16 @@ const Header = () => {
     <header className="fixed top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 md:px-8">
 
-       
+
         <button
           onClick={() => handleNavigate("home")}
           className="flex items-center gap-2"
         >
           <HousePlug className="h-6 w-6" />
-          <span className="text-lg font-bold">E-Commerce</span>
+          <span className="text-lg font-bold uppercase">Cartique</span>
         </button>
 
- 
+
         <nav className="hidden lg:flex items-center gap-8">
           {menuItems.map((item) => (
             <button
@@ -87,7 +102,7 @@ const Header = () => {
 
         <div className="flex items-center gap-4">
 
-         
+
           <Sheet open={openCartSheet} onOpenChange={setOpenCartSheet}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon">
@@ -104,12 +119,12 @@ const Header = () => {
               </SheetHeader>
 
               <div className="mt-6">
-                <CartWrapper cartItems={cartItems} />
+                <CartWrapper openCartSheet={openCartSheet} setOpenCartSheet={setOpenCartSheet} cartItems={cartItems} />
               </div>
             </SheetContent>
           </Sheet>
 
-          {/* Profile */}
+
           {isAuthenticated ? (
             <Sheet>
               <SheetTrigger asChild>
@@ -118,16 +133,17 @@ const Header = () => {
                 </Button>
               </SheetTrigger>
 
-              <SheetContent side="right" className="w-60 p-6">
+              <SheetContent side="right" className="w-60 h-60 rounded-l-sm p-6">
                 <SheetHeader>
-                  <SheetTitle>Profile</SheetTitle>
-                  <SheetDescription>
-                    Manage your account
-                  </SheetDescription>
+                  <SheetTitle className="text-left">
+                    Account Settings
+                  </SheetTitle>
+
                 </SheetHeader>
 
-                <div className="mt-6 flex flex-col gap-4">
+                <div className="mt-6  flex flex-col gap-4">
                   <Button
+                    className="bg-black text-white"
                     variant="outline"
                     onClick={() => navigate("/shop/account")}
                   >

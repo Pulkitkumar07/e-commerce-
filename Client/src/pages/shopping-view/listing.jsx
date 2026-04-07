@@ -16,14 +16,20 @@ import { useSearchParams } from "react-router-dom";
 import ProductDetails from '../../components/shopping-view/productDetails.jsx'
 import { toast } from "react-toastify";
 import { addtoCart } from "../../store/actions/cartAction.jsx";
+import { asyncGetuserProfile } from "@/store/actions/userAction.jsx";
 
 const ShoppingListing = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.shopProduct.products);
-  const productDetails=useSelector((state)=>state.shopProduct.productDetails)
-
+  const productDetails = useSelector((state) => state.shopProduct.productDetails)
+  const cartItems = useSelector((state) => state.cartProduct.cartItems);
   const [searchParams, setSearchParams] = useSearchParams();
-  const user = JSON.parse(localStorage.getItem("user")) || null;
+  const userData = useSelector((state) => state.user.user);
+  
+  const user = userData?._id;
+  useEffect(() => {
+  dispatch(asyncGetuserProfile());
+}, [dispatch]);
 
   const filters = {
     category: searchParams.get("category")?.split(",") || [],
@@ -31,7 +37,7 @@ const ShoppingListing = () => {
     price: searchParams.get("price") || null,
   };
   const sortOption = searchParams.get("sort") || "price-low";
-  const [openDetails,setDetailsOpen]=useState(false);
+  const [openDetails, setDetailsOpen] = useState(false);
 
   useEffect(() => {
     dispatch(asyncFetchProducts(filters, sortOption));
@@ -73,32 +79,58 @@ const ShoppingListing = () => {
   const clearFilters = () => {
     setSearchParams({});
   };
-  
-  
 
-  useEffect(()=>{
-  if(productDetails!==null) setDetailsOpen(true)
-  },[productDetails])
 
-  const handleProductDetails=(id)=>{
-   dispatch(asyncFetchProductDetails(id))
+
+  useEffect(() => {
+    if (productDetails !== null) setDetailsOpen(true)
+  }, [productDetails])
+
+  const handleProductDetails = (id) => {
+    dispatch(asyncFetchProductDetails(id))
   }
-const handleAddToCart = (productId) => {
+const handleAddToCart = (productId, stock) => {
 
-  if (!user?.id) {
+  if (!user) {
     toast.error("Please login first");
     return;
-  } 
-  console.log("Adding to cart:", { userId: user.id, productId, quantity: 1 });
+  }
 
   if (!productId) return;
 
-  dispatch(addtoCart(user.id, productId, 1));
+  let getCartItems = cartItems || [];
+
+  const index = getCartItems.findIndex(
+    (item) => item.productId === productId
+  );
+
+  
+  if (index > -1) {
+    const getQuantity = getCartItems[index].quantity;
+
+    // 🔥 MAIN CHECK
+    if (getQuantity + 1 > stock) {
+      toast.error("Stock limit reached");
+      return; 
+    }
+
+    dispatch(addtoCart(user, productId, getQuantity + 1));
+    toast.success("Quantity updated!");
+    return;
+  }
+
+  // ✅ NEW PRODUCT
+  if (1 > stock) {
+    toast.error("Out of stock");
+    return;
+  }
+
+  dispatch(addtoCart(user, productId, 1));
   toast.success("Product added to cart!");
 };
 
 
-  
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 p-4 md:p-6">
 
@@ -157,12 +189,12 @@ const handleAddToCart = (productId) => {
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
-          <Productlist products={products} handleProductDetails={handleProductDetails} handleAddToCart={handleAddToCart}  />
+          <Productlist products={products} handleProductDetails={handleProductDetails} handleAddToCart={handleAddToCart} />
         </div>
 
       </div>
-      <ProductDetails open={openDetails}  setDetailsOpen={setDetailsOpen} productDetails={productDetails} 
- />
+      <ProductDetails open={openDetails} setDetailsOpen={setDetailsOpen} productDetails={productDetails}
+      />
     </div>
   );
 };

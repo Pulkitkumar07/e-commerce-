@@ -70,3 +70,5 @@ export const asyncFetchProductDetails=(id)=>async(dispatch)=>{
 export const asyncClearProductDetails=()=>async(dispatch)=>{
   dispatch(clearProductDetails());
 }
+
+

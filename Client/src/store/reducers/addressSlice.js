@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  addresses: [],      
+  addresses: [],
+  selectedAddress: null,
   isLoading: false,
   error: null,
 };
@@ -16,19 +17,22 @@ const addressSlice = createSlice({
       state.error = null;
     },
 
+    setSelectedAddress: (state, action) => {
+      state.selectedAddress = action.payload;
+    },
   
     addAddress: (state, action) => {
       state.addresses.unshift(action.payload);
       state.isLoading = false;
     },
 
-   
+
     loadAddresses: (state, action) => {
       state.addresses = action.payload;
       state.isLoading = false;
     },
 
-   
+
     addressFail: (state, action) => {
       state.isLoading = false;
       state.error = action.payload;
@@ -37,10 +41,11 @@ const addressSlice = createSlice({
 });
 
 export const {
-    addressStart,
-    addAddress,
-    loadAddresses,
-    addressFail,
+  addressStart,
+  addAddress,
+  loadAddresses,
+  addressFail,
+  setSelectedAddress
 } = addressSlice.actions;
 
 export default addressSlice.reducer;

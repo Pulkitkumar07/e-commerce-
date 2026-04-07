@@ -1,6 +1,6 @@
 import cart from '@/pages/shopping-view/cart.jsx';
 import axios from '../../api/api.jsx';
-import { addressStart, addAddress, loadAddresses, addressFail, } from '../reducers/addressSlice';
+import { addressStart, addAddress, loadAddresses, addressFail,setSelectedAddress } from '../reducers/addressSlice';
 
 
 export const createAddress = (addressData) => async (dispatch) => {
@@ -13,6 +13,17 @@ export const createAddress = (addressData) => async (dispatch) => {
 
     } catch (error) {
         console.error('Error creating address:', error);
+        dispatch(addressFail(error.message));
+    }
+};
+
+export const selectAddress = (addressId) => async (dispatch) => {
+    dispatch(addressStart());
+    try { 
+         
+         dispatch(setSelectedAddress(addressId));
+    } catch (error) {
+        console.error('Error fetching address:', error);
         dispatch(addressFail(error.message));
     }
 };

@@ -83,14 +83,19 @@ const Productlist = ({ products, handleProductDetails ,handleAddToCart}) => {
                     : "bg-red-100 text-red-500"
                 }`}
               >
-                {product.stock > 0 ? "In Stock" : "Out"}
+                {product.stock >0 && product.stock < 5
+                  ? `Only ${product.stock} left`
+                  : product.stock > 0
+                  ? "In Stock"
+                  : "Out of Stock"}
               </span>
             </div>
 
             
             <Button
-            onClick={() => handleAddToCart(product._id)}
+            onClick={() => handleAddToCart(product._id, product.stock)}
               disabled={product.stock === 0}
+
               className="w-full mt-3 h-9 text-xs flex items-center justify-center gap-2 rounded-lg"
             >
               <ShoppingCart size={14} />

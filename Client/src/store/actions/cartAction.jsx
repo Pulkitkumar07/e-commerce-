@@ -68,3 +68,17 @@ export const updateCartItemQty = (userId, productId, quantity) => async (dispatc
     }
 }
 
+export const clearCartAfterOrder = (userId) => async (dispatch) => {
+    dispatch(cartStart());
+    try {
+        const response = await axios.delete(`/api/shop/cart/clear/${userId}`);
+        dispatch(loadCartItems([]));
+        console.log("Cart cleared successfully:", response.data);
+
+    } catch (error) {
+        dispatch(cartFail(error.message));
+        console.error("Error clearing cart:", error);
+    }
+}
+
+

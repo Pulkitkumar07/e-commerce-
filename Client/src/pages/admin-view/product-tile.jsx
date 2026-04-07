@@ -37,7 +37,7 @@ const ProductLists = () => {
             <img
               src={prod.imageUrl}
               alt={prod.title}
-              className="w-full h-full object-cover mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover rounded-sm mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
             />
             
      

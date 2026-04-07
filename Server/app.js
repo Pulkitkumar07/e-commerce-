@@ -7,6 +7,10 @@ import adminRoutes from "./src/routers/adminRoutes.js";
 import shopRoutes from './src/routers/productRotues.js'
 import cartRoutes from './src/routers/cartRoutes.js';
 import addressRoutes from './src/routers/addressRoutes.js';
+import orderRotues from './src/routers/orderRotues.js'
+import AdminRouter from './src/routers/adminorderRoutes.js';
+import SearchRouter from './src/routers/searchRoutes.js';
+
 dotenv.config();
 
 const app = express();
@@ -26,5 +30,8 @@ app.use("/api/admin/products", adminRoutes);
 app.use('/api/shop/products',shopRoutes)
 app.use('/api/shop/cart',cartRoutes)
 app.use('/api/shop/address',addressRoutes)
+app.use('/api/shop/order',orderRotues)
+app.use('/api/admin/order',AdminRouter)
+app.use('/api/shop/search',SearchRouter)
 
 export default app;

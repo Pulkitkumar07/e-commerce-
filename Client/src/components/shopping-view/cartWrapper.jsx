@@ -2,8 +2,11 @@
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { Button } from "../ui/button";
 import CartContent from "./cartContent.jsx";
+import {  useNavigate } from "react-router-dom";
 
-const CartWrapper = ({ cartItems }) => {
+const CartWrapper = ({ cartItems ,openCartSheet, setOpenCartSheet }) => {
+
+  const navigate=useNavigate()
 
   return (
    <SheetContent className="w-full sm:max-w-md p-6 flex flex-col h-screen">
@@ -43,8 +46,16 @@ const CartWrapper = ({ cartItems }) => {
  
     </div>
 
-    <Button className="w-full bg-black text-white hover:bg-black/90">
+    <Button 
+     onClick={
+      
+      ()=>{navigate("/shop/checkout")
+      setOpenCartSheet(false)
+     }}
+     
+     className="w-full bg-black text-white hover:bg-black/90">
       Checkout
+      
     </Button>
   </div>
 

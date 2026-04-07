@@ -111,7 +111,7 @@ export const editProducts = async (req, res) => {
       product.image = result.secure_url;
     }
 
-    const updatedProduct = await product.save(); // ✅ FIXED
+    const updatedProduct = await product.save(); 
 
     res.status(200).json({
       message: "Product updated successfully",
