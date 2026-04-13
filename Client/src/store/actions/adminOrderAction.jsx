@@ -1,6 +1,6 @@
 import axios from '../../api/api.jsx';
 import { addOrder, setOrderDetails } from '../reducers/adminOrderSlice.js';
-import { getAllOrders } from './orderAction.jsx';
+
 
 export const GetAllOrders = () => async (dispatch) => {
   try {
@@ -36,7 +36,7 @@ export const updateOrderStatus = (orderId, status) => async (dispatch) => {
     const response = await axios.put(`/api/admin/order/UpdateOrderStatus/${orderId}`, { status });
     const data = response.data; 
     console.log("Order status updated:", data);
-    dispatch(getAllOrders());
+    dispatch(GetAllOrders());
    
 
   } catch (error) {

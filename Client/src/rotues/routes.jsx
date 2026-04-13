@@ -1,94 +1,98 @@
 import { Routes, Route } from "react-router-dom";
-import Layout from "../components/auth/layout.jsx";
-import Login from "../pages/auth/login.jsx";
-import Register from "../pages/auth/register.jsx";
-import AdminLayout from "@/components/admin-view/layout.jsx";
-import Dashboard from "../pages/admin-view/dashboard.jsx";
-import Orders from "../pages/admin-view/Adminorders.jsx";
-import Products from "../pages/admin-view/product.jsx";
-import Features from "../pages/admin-view/features.jsx";
-import ShoppingLayout from "../components/shopping-view/layout.jsx";
-import ShoppingHome from "../pages/shopping-view/home.jsx";
-import ShoppingListing from "../pages/shopping-view/listing.jsx";
-import ShoppingCheckout from "../pages/shopping-view/checkout.jsx";
-import ShoppingAccount from "../pages/shopping-view/account.jsx";
-import PageNotFound from "../pages/not-found/pagenotfound.jsx";
-import CheckAuth from "../components/common/check-auth.jsx";
-import UnauthPage from "../pages/unauth-page/index.jsx";
+import { lazy, Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 import { asyncGetuserProfile } from "@/store/actions/userAction.jsx";
-import PaypalReturn from "@/components/shopping-view/paypal.jsx";
-import PaymentSuccess from "@/components/shopping-view/payment-success.jsx";
-import SearchPage from "@/pages/shopping-view/searchPage.jsx";
-import About from "@/pages/shopping-view/about.jsx";
-import ContactPage from '../pages/shopping-view/contactPage.jsx'
+import CheckAuth from "../components/common/check-auth.jsx";
+import { Navigate } from "react-router-dom";
+
+const Layout = lazy(() => import("../components/auth/layout.jsx"));
+const Login = lazy(() => import("../pages/auth/login.jsx"));
+const Register = lazy(() => import("../pages/auth/register.jsx"));
+
+const AdminLayout = lazy(() => import("@/components/admin-view/layout.jsx"));
+const Dashboard = lazy(() => import("../pages/admin-view/dashboard.jsx"));
+const Orders = lazy(() => import("../pages/admin-view/Adminorders.jsx"));
+const Products = lazy(() => import("../pages/admin-view/product.jsx"));
+const Features = lazy(() => import("../pages/admin-view/features.jsx"));
+
+const ShoppingLayout = lazy(() => import("../components/shopping-view/layout.jsx"));
+const ShoppingHome = lazy(() => import("../pages/shopping-view/home.jsx"));
+const ShoppingListing = lazy(() => import("../pages/shopping-view/listing.jsx"));
+const ShoppingCheckout = lazy(() => import("../pages/shopping-view/checkout.jsx"));
+const ShoppingAccount = lazy(() => import("../pages/shopping-view/account.jsx"));
+const SearchPage = lazy(() => import("@/pages/shopping-view/searchPage.jsx"));
+const About = lazy(() => import("@/pages/shopping-view/about.jsx"));
+const ContactPage = lazy(() => import("../pages/shopping-view/contactPage.jsx"));
+
+const PageNotFound = lazy(() => import("../pages/not-found/pagenotfound.jsx"));
+const UnauthPage = lazy(() => import("../pages/unauth-page/index.jsx"));
+const PaypalReturn = lazy(() => import("@/components/shopping-view/paypal.jsx"));
+const PaymentSuccess = lazy(() => import("@/components/shopping-view/payment-success.jsx"));
+
 const MainRoutes = () => {
+  const dispatch = useDispatch();
 
- const dispatch=useDispatch(); 
+  useEffect(() => {
+    dispatch(asyncGetuserProfile());
+  }, [dispatch]);
 
- useEffect(()=>{
-  dispatch(asyncGetuserProfile())
- },[]);
+  const { isLoading, user, isAuthenticated } = useSelector(
+    (state) => state.user
+  );
 
+  if (isLoading) return <div>Loading...</div>;
 
-const { isLoading } = useSelector((state) => state.user);
-const user = useSelector((state) => state.user.user);
-const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
- if(isLoading) return <div>Loading...</div>;
- 
   return (
-    <Routes>
+    <Suspense fallback={<div className="p-4 text-center">Loading page...</div>}>
+      <Routes>
 
-      <Route
-        path="/auth"
-        element={
+        <Route
+          path="/"
+          element={<Navigate to="/shop/home" replace />}
+        />
+
+
+        <Route path="/auth" element={
           <CheckAuth isAuthenticated={isAuthenticated} user={user}>
             <Layout />
           </CheckAuth>
-        }
-      >
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-      </Route>
+        }>
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+        </Route>
 
-      <Route
-        path="/admin"
-        element={
+        <Route path="/admin" element={
           <CheckAuth isAuthenticated={isAuthenticated} user={user}>
             <AdminLayout />
           </CheckAuth>
-        }
-      >
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="orders" element={<Orders />} />
-        <Route path="products" element={<Products />} />
-        <Route path="features" element={<Features />} />
-      </Route>
+        }>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="products" element={<Products />} />
+          <Route path="features" element={<Features />} />
+        </Route>
 
-      <Route
-        path="/shop"
-        element={
+        <Route path="/shop" element={
           <CheckAuth isAuthenticated={isAuthenticated} user={user}>
             <ShoppingLayout />
           </CheckAuth>
-        }
-      >
-        <Route path="home" element={<ShoppingHome />} />
-        <Route path="listing" element={<ShoppingListing />} />
-        <Route path="checkout" element={<ShoppingCheckout />} />
-        <Route path="account" element={<ShoppingAccount />} />
-        <Route path="paypal-return" element={<PaypalReturn />} />
-        <Route path="payment-success" element={<PaymentSuccess />} />
-        <Route path="search" element={<SearchPage/>}/>
-        <Route path="about" element={<About/>}/>
-        <Route path="contact" element={<ContactPage/>}/>
+        }>
+          <Route path="home" element={<ShoppingHome />} />
+          <Route path="listing" element={<ShoppingListing />} />
+          <Route path="checkout" element={<ShoppingCheckout />} />
+          <Route path="account" element={<ShoppingAccount />} />
+          <Route path="search" element={<SearchPage />} />
+          <Route path="about" element={<About />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="paypal-return" element={<PaypalReturn />} />
+          <Route path="payment-success" element={<PaymentSuccess />} />
+        </Route>
 
-      </Route>
+        <Route path="/unauth-page" element={<UnauthPage />} />
+        <Route path="*" element={<PageNotFound />} />
 
-      <Route path="/unauth-page" element={<UnauthPage />} />
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 };
 

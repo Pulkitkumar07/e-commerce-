@@ -1,12 +1,13 @@
-// orderAction.jsx
+
 
 import { addOrder, setOrderId,setOrderDetails } from "../reducers/orderSlice";
 import axios from "../../api/api.jsx";
 
 
 
+
 export const createOrder = (orderData) => async (dispatch) => {
-  console.log("Creating order with data:", orderData); // 🔥 DEBUG
+  console.log("Creating order with data:", orderData); 
   try {
     const response = await axios.post(
       "/api/shop/order/create",
@@ -35,9 +36,10 @@ export const capturePayment = (paymentData) => async (dispatch) => {
       "/api/shop/order/capture",
       paymentData
     );
-
+      
     const data = response.data;
-
+    
+    
     if (data?.success) {
       return data; 
     }
@@ -48,18 +50,17 @@ export const capturePayment = (paymentData) => async (dispatch) => {
 };
 
 export const getAllOrders = (userId) => async (dispatch) => {
+  if (!userId) return; 
   try {
     const response = await axios.get(`/api/shop/order/all/${userId}`);
     const data = response.data;
 
-   
-
     if (data?.success) {
+      
       dispatch(addOrder(data.orders)); 
     }
-
   } catch (error) {
-    console.error("Error fetching orders:", error);
+    console.error("Error fetching user orders:", error);
   }
 };
 export const getOrderDetails=(orderId)=>async(dispatch)=>{
@@ -79,3 +80,5 @@ export const getOrderDetails=(orderId)=>async(dispatch)=>{
 export const resetOrderDetails=()=>async(dispatch)=>{
   dispatch(setOrderDetails(null));
 } 
+
+

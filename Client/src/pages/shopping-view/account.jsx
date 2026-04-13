@@ -11,12 +11,14 @@ import { getAllOrders } from "../../store/actions/orderAction.jsx"
 
 const ShoppingAccount = () => {
   const userId = useSelector((state) => state.user.user?._id);
+
+  
   const dispatch = useDispatch();
   useEffect(() => {
     if (userId) {
       dispatch(getAllOrders(userId));
     }
-  }, [dispatch]);
+  }, [dispatch,userId]);
   const orders=useSelector((state)=>state.orderList.orders);
   
 

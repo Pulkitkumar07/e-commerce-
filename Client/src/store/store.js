@@ -7,6 +7,8 @@ import addressSlice from './reducers/addressSlice.js'
 import OrderSlice from './reducers/orderSlice.js'
 import AdminOrderSlice from './reducers/adminOrderSlice.js'
 import shopSearchslice from './reducers/searchSlice.js'
+import ReviewSlice from './reducers/reviewSlice.js'
+import FeatureSlice from './reducers/featureSlice.js'
 const store = configureStore({
   reducer: {
     user: userSlice,
@@ -16,7 +18,9 @@ const store = configureStore({
     addressList: addressSlice,
     orderList: OrderSlice,
     adminOrder: AdminOrderSlice,
-    shopSearchslice:shopSearchslice
+    shopSearchslice:shopSearchslice,
+    review:ReviewSlice,
+    Feature:FeatureSlice
   },
 
 });

@@ -27,6 +27,7 @@ const ShoppingCheckout = () => {
   const total = subtotal + delivery
 
   const handleInitiatePayment = async () => {
+    console.log("cart",cartItems)
 
     if (!address) {
       toast.error("Please select a delivery address")
@@ -44,7 +45,7 @@ const ShoppingCheckout = () => {
       cartItems: cartItems.map((item) => ({
         productId: item?.productId,
         title: item?.title,
-        price: Number(item.salePrice ?? item.price),
+        price: Number(item.salePrice > 0 ? item.salePrice : item.price),
         quantity: Number(item.quantity),
       })),
 

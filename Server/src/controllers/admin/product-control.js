@@ -17,7 +17,7 @@ export const createProduct = async (req, res) => {
       salePrice,
     } = req.body;
 
-    // basic validation
+   
     if (!title || !price || !stock) {
       return res.status(400).json({
         message: "Title, price and stock are required",
@@ -30,7 +30,7 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    // buffer -> base64 -> cloudinary
+   
     const base64 = Buffer.from(req.file.buffer).toString("base64");
     const dataURI = `data:${req.file.mimetype};base64,${base64}`;
 
