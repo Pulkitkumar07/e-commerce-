@@ -7,7 +7,7 @@ import {
   fetchAddresses,
   updateAddress,
   deleteAddress,
-} from "@/store/actions/addressAction.jsx";
+} from "@/store/actions/addressAction.js";
 import AddressCard from "./addressCard";
 
 const addressFormControls = [
@@ -22,7 +22,7 @@ const Address = () => {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.user?._id);
   const addresses = useSelector(
-    (state) => state.addressList.addresses?.addresses || []
+    (state) => state.addressList.addresses || []
   );
 
   const [editingAddressId, setEditingAddressId] = useState(null);
@@ -47,16 +47,16 @@ const Address = () => {
 
     try {
       if (editingAddressId) {
-        dispatch(updateAddress(userId, editingAddressId, data));
+        await dispatch(updateAddress(userId, editingAddressId, data));
         toast.success("Address updated!");
         setEditingAddressId(null);
         emptyForm();
       } else {
-        dispatch(createAddress({ ...data, userId }));
+        await dispatch(createAddress({ ...data, userId }));
         toast.success("Address added!");
         emptyForm();
       }
-    } catch (err) {
+    } catch {
       toast.error("Something went wrong");
     }
   };
@@ -66,9 +66,13 @@ const Address = () => {
     reset(address);
   };
 
-  const onDelete = (userId, addressId) => {
-    dispatch(deleteAddress(userId, addressId));
-    toast.success("Address deleted");
+  const onDelete = async (userId, addressId) => {
+    try {
+      await dispatch(deleteAddress(userId, addressId));
+      toast.success("Address deleted");
+    } catch {
+      toast.error("Something went wrong");
+    }
   };
 
   return (

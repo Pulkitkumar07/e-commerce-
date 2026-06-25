@@ -1,21 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
-import { useState } from "react";
 
 const Productlist = ({ products, handleProductDetails ,handleAddToCart}) => {
-  const [favourites, setFavourites] = useState([]);
-
-  const toggleFavourite = (id) => {
-    setFavourites((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id]
-    );
-  };
-
- 
-
   if (!products?.length) {
     return (
       <div className="col-span-full text-center py-12 text-gray-400">

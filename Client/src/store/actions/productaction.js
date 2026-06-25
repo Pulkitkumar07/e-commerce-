@@ -1,4 +1,5 @@
 import axios from "../../api/api.jsx";
+import endpoints from "../../api/endpoints.js";
 import qs from "qs";
 
 import {
@@ -8,6 +9,7 @@ import {
   loadProductDetails,
   clearProductDetails
 } from "../reducers/productSlice.js";
+import getErrorMessage from "./getErrorMessage.js";
 
 export const asyncFetchProducts =
   (filters, sortOption) => async (dispatch) => {
@@ -17,7 +19,7 @@ export const asyncFetchProducts =
       dispatch(productStart());
 
       const res = await axios.get(
-        "/api/shop/products/get",
+        endpoints.shop.products.list,
         {
           params: {
             ...(filters?.category?.length > 0 && {
@@ -42,11 +44,14 @@ export const asyncFetchProducts =
         }
       );
 
-      dispatch(loadProducts(res.data.products));
+      const products = res.data.data.products;
+      dispatch(loadProducts(products));
+      return products;
 
     } catch (err) {
-      dispatch(productFail(err.response?.data?.message));
-      console.error("Fetch products error:", err);
+      const message = getErrorMessage(err, "Fetch products error");
+      dispatch(productFail(message));
+      throw err;
     }
   };
 
@@ -55,14 +60,17 @@ export const asyncFetchProductDetails=(id)=>async(dispatch)=>{
   
     
     dispatch(productStart());
-    const res = await axios.get(`/api/shop/products/get/${id}`);
-    dispatch(loadProductDetails(res.data.data));
-    console.log(res.data.data);
+    const res = await axios.get(endpoints.shop.products.details(id));
+    const product = res.data.data;
+    dispatch(loadProductDetails(product));
+    return product;
     
    
 
   }catch(error){
-    dispatch(productFail(error.response?.data?.message || "Error"));
+    const message = getErrorMessage(error, "Error fetching product details");
+    dispatch(productFail(message));
+    throw error;
   }
   
 }
@@ -70,5 +78,3 @@ export const asyncFetchProductDetails=(id)=>async(dispatch)=>{
 export const asyncClearProductDetails=()=>async(dispatch)=>{
   dispatch(clearProductDetails());
 }
-
-

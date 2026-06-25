@@ -1,92 +1,46 @@
 import Orders from "../../models/Order.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import { sendError, sendSuccess } from "../../utils/apiResponse.js";
 
+const getOrderOfallUsers = asyncHandler(async (req, res) => {
+  const orders = await Orders.find({}).sort({ orderDate: -1 });
+  return sendSuccess(res, orders, "Orders fetched");
+});
 
-const getOrderOfallUsers=async(req,res)=>{
-  
-  
-  try{
-  
+const getOrderDetails = asyncHandler(async (req, res) => {
+  const { id } = req.params;
 
-   const order= await Orders.find({}).sort({orderDate:-1});
-   if(!order){
-    return res.status(404).json({
-      success:false,
-      message:"Order not found"
-    })
-   }
-   return res.json({
-    success:true,
-    data:order
-   })
-
- 
-  }catch(error){
-    res.status(500).json({
-      success:false,
-      message:"Server Error"
-    })
+  if (!id) {
+    return sendError(res, "Missing order id", 400);
   }
-}
 
-const getOrderDetails=async(req,res)=>{
-  
-  try{
-   const {id}= req.params;
-    if(!id){
-    return res.status(400).json({
-      success:false,
-      message:"Missing order id"
-    })
-   }
-   const order= await Orders.findById(id);
-   if(!order){
-    return res.status(404).json({
-      success:false,
-      message:"Order not found"
-    })
-   }
-   return res.json({
-    success:true,
-    data:order
-   })
-
- 
-  }catch(error){
-    res.status(500).json({
-      success:false,
-      message:"Server Error"
-    })
+  const order = await Orders.findById(id);
+  if (!order) {
+    return sendError(res, "Order not found", 404);
   }
-}
 
-const updateOrderStatus=async(req,res)=>{
-  try{
-    const {id}= req.params;
-    const {status}= req.body;
-    if(!id || !status){
-      return res.status(400).json({
-        success:false,
-        message:"Missing order id or status"
-      })
-     }
-     const order= await Orders.findByIdAndUpdate(id,{orderStatus:status},{new:true});
-     if(!order){
-      return res.status(404).json({
-        success:false,
-        message:"Order not found"
-      })
-     }
-     return res.json({
-      success:true,
-      message:"Order status updated",
-     })
+  return sendSuccess(res, order, "Order details fetched");
+});
 
-  }catch(error){
-    res.status(500).json({
-      success:false,
-      message:"Server Error"
-    })
+const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!id || !status) {
+    return sendError(res, "Missing order id or status", 400);
   }
-} 
+
+  const order = await Orders.findByIdAndUpdate(
+    id,
+    { orderStatus: status },
+    { new: true }
+  );
+
+  if (!order) {
+    return sendError(res, "Order not found", 404);
+  }
+
+  return sendSuccess(res, order, "Order status updated");
+});
 
 export default { getOrderOfallUsers, getOrderDetails, updateOrderStatus };

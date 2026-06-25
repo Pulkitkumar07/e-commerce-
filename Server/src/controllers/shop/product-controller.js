@@ -1,8 +1,8 @@
 import Product from "../../models/productModel.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import { sendError, sendSuccess } from "../../utils/apiResponse.js";
 
-export const getFilterProduct = async (req, res) => {
-  try {
-
+export const getFilterProduct = asyncHandler(async (req, res) => {
     const { category, brand, price, sort } = req.query;
      
      
@@ -58,51 +58,27 @@ export const getFilterProduct = async (req, res) => {
       default:
         sortOption = {};
     }
-   console.log("gueru",query);
-   console.log("short",sortOption);
-   
-   
+
     const products = await Product.find(query).sort(sortOption);
 
-    res.status(200).json({
-      success: true,
+    return sendSuccess(res, {
       count: products.length,
       products,
-    });
+    }, "Products fetched");
+});
 
-  } catch (error) {
-    console.log("filter err:", error);
-    res.status(500).json({
-      message: "Some error occurred",
-    });
-  }
-};
-
-export const getProductDetails = async (req, res) => {
-  try {
+export const getProductDetails = asyncHandler(async (req, res) => {
     const { id } = req.params;
+
+    if (!id) {
+      return sendError(res, "Product id is required", 400);
+    }
 
     const product = await Product.findById(id);
 
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product Not Found"
-      });
+      return sendError(res, "Product not found", 404);
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Product Found Successfully",
-      data: product
-    });
-
-  } catch (error) {
-    console.log("Error finding product:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Server Error"
-    });
-  }
-};
+    return sendSuccess(res, product, "Product found successfully");
+});

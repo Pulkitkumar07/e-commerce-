@@ -8,15 +8,14 @@ import {
 import Filter from "../../components/shopping-view/filter.jsx";
 import { Button } from "@/components/ui/button";
 import { ArrowDownUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { asyncFetchProductDetails, asyncFetchProducts } from "@/store/actions/productaction.jsx";
+import { asyncFetchProductDetails, asyncFetchProducts } from "@/store/actions/productaction.js";
 import Productlist from "../shopping-view/productlist";
 import { useSearchParams } from "react-router-dom";
 import ProductDetails from '../../components/shopping-view/productDetails.jsx'
-import { toast } from "react-toastify";
-import { addtoCart } from "../../store/actions/cartAction.jsx";
-import { asyncGetuserProfile } from "@/store/actions/userAction.jsx";
+import { asyncGetuserProfile } from "@/store/actions/userAction.js";
+import useAddToCart from "@/hooks/useAddToCart.js";
 
 const ShoppingListing = () => {
   const dispatch = useDispatch();
@@ -27,21 +26,23 @@ const ShoppingListing = () => {
   const userData = useSelector((state) => state.user.user);
   
   const user = userData?._id;
+  const addProductToCart = useAddToCart({ userId: user, cartItems });
+
   useEffect(() => {
   dispatch(asyncGetuserProfile());
 }, [dispatch]);
 
-  const filters = {
+  const filters = useMemo(() => ({
     category: searchParams.get("category")?.split(",") || [],
     brand: searchParams.get("brand")?.split(",") || [],
     price: searchParams.get("price") || null,
-  };
+  }), [searchParams]);
   const sortOption = searchParams.get("sort") || "price-low";
   const [openDetails, setDetailsOpen] = useState(false);
 
   useEffect(() => {
     dispatch(asyncFetchProducts(filters, sortOption));
-  }, [searchParams]);
+  }, [dispatch, filters, sortOption]);
 
   const handlerFilter = (section, option) => {
     const newParams = new URLSearchParams(searchParams);
@@ -80,53 +81,12 @@ const ShoppingListing = () => {
     setSearchParams({});
   };
 
-
-
-  useEffect(() => {
-    if (productDetails !== null) setDetailsOpen(true)
-  }, [productDetails])
-
   const handleProductDetails = (id) => {
+    setDetailsOpen(true)
     dispatch(asyncFetchProductDetails(id))
   }
 const handleAddToCart = (productId, stock) => {
-
-  if (!user) {
-    toast.error("Please login first");
-    return;
-  }
-
-  if (!productId) return;
-
-  let getCartItems = cartItems || [];
-
-  const index = getCartItems.findIndex(
-    (item) => item.productId === productId
-  );
-
-  
-  if (index > -1) {
-    const getQuantity = getCartItems[index].quantity;
-
-    // 🔥 MAIN CHECK
-    if (getQuantity + 1 > stock) {
-      toast.error("Stock limit reached");
-      return; 
-    }
-
-    dispatch(addtoCart(user, productId, getQuantity + 1));
-    toast.success("Quantity updated!");
-    return;
-  }
-
-  // ✅ NEW PRODUCT
-  if (1 > stock) {
-    toast.error("Out of stock");
-    return;
-  }
-
-  dispatch(addtoCart(user, productId, 1));
-  toast.success("Product added to cart!");
+  addProductToCart({ productId, stock });
 };
 
 

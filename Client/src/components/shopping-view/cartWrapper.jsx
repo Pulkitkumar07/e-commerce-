@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import CartContent from "./cartContent.jsx";
 import {  useNavigate } from "react-router-dom";
 
-const CartWrapper = ({ cartItems ,openCartSheet, setOpenCartSheet }) => {
+const CartWrapper = ({ cartItems, setOpenCartSheet }) => {
 
   const navigate=useNavigate()
 
@@ -63,4 +63,4 @@ const CartWrapper = ({ cartItems ,openCartSheet, setOpenCartSheet }) => {
   );
 };
 
-export default CartWrapper; 
+export default CartWrapper;

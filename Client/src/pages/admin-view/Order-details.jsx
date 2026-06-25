@@ -1,26 +1,20 @@
 import { DialogContent } from '@/components/ui/dialog';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
   updateOrderStatus,
   GetOrderDetails,
   GetAllOrders
-} from '@/store/actions/adminOrderAction';
+} from '@/store/actions/adminOrderAction.js';
 import { toast } from 'react-toastify';
+import { getOrderStatusClass } from '@/lib/orderStatus.js';
 
 const OrderDetails = ({ orderDetails }) => {
   const dispatch = useDispatch();
 
-  const adminId = useSelector((state) => state.user.user?._id);
-
-  const [status, setStatus] = useState('');
-
-  useEffect(() => {
-    if (orderDetails?.orderStatus) {
-      setStatus(orderDetails.orderStatus);
-    }
-  }, [orderDetails]);
+  const [selectedStatusByOrder, setSelectedStatusByOrder] = useState({});
+  const status = selectedStatusByOrder[orderDetails?._id] || orderDetails?.orderStatus || '';
 
   const handleUpdate = async (orderId) => {
     if (!status) return;
@@ -31,18 +25,11 @@ const OrderDetails = ({ orderDetails }) => {
       
       
       dispatch(GetOrderDetails(orderId));
-      
-      if (adminId) {
-        dispatch(GetAllOrders(adminId)); 
-      } else {
-        console.warn("Skipping GetAllOrders: adminId is undefined. Check your Redux selector.");
-       
-      }
+      dispatch(GetAllOrders());
       
       toast.success('Order status updated successfully!');
     } catch (error) {
-      console.error("Update failed:", error);
-      toast.error("Failed to update status");
+      toast.error(error.normalizedMessage || "Failed to update status");
     }
   };
 
@@ -79,10 +66,7 @@ const OrderDetails = ({ orderDetails }) => {
             </div>
             <div className="space-y-1">
               <p className="text-[10px] uppercase text-gray-400 font-bold">Current Status</p>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                orderDetails?.orderStatus === 'Delivered' ? 'bg-green-100 text-green-700' :
-                orderDetails?.orderStatus === 'Cancelled' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
-              }`}>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${getOrderStatusClass(orderDetails?.orderStatus)}`}>
                 {orderDetails?.orderStatus}
               </span>
             </div>
@@ -117,7 +101,12 @@ const OrderDetails = ({ orderDetails }) => {
               <select
                 className="flex-1 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) =>
+                  setSelectedStatusByOrder((previousStatus) => ({
+                    ...previousStatus,
+                    [orderDetails._id]: e.target.value,
+                  }))
+                }
               >
                 <option value="Pending">Pending</option>
                 <option value="Confirmed">Confirmed</option>

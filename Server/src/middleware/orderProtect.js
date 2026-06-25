@@ -1,22 +1,24 @@
-import jwt from "jsonwebtoken";
+import { sendError } from "../utils/apiResponse.js";
+import { verifyAuthToken } from "../utils/auth.js";
 
 const protect = (req, res, next) => {
-  
-
   const token = req.cookies.token;
 
- 
-
   if (!token) {
-    return res.status(401).json({ message: "No token" });
+    return sendError(res, "No token provided", 401);
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  try {
+    const user = verifyAuthToken(token);
 
-  console.log("DECODED:", decoded);
+    if (!user) {
+      return sendError(res, "Invalid token", 401);
+    }
 
-  req.user = decoded;
-
-  next();
+    req.user = user;
+    next();
+  } catch (error) {
+    return sendError(res, "Invalid or expired token", 401);
+  }
 };
 export default protect;

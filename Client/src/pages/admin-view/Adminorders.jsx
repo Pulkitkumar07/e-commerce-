@@ -10,7 +10,8 @@ import {
   GetAllOrders,
   GetOrderDetails,
   removeOrderDetails,
-} from "@/store/actions/adminOrderAction";
+} from "@/store/actions/adminOrderAction.js";
+import { getOrderStatusClass } from "@/lib/orderStatus.js";
 
 const AdminOrder = () => {
   const dispatch = useDispatch();
@@ -18,8 +19,6 @@ const AdminOrder = () => {
   const orders = useSelector((state) => state.adminOrder.OrderList);
   const orderDetails = useSelector((state) => state.adminOrder.orderDetails);
 
-  // FIX: Admin dashboard par orders lene ke liye userId pass mat kijiye.
-  // Admin action hamesha saare orders fetch karta hai.
   useEffect(() => {
     dispatch(GetAllOrders()); 
   }, [dispatch]);
@@ -63,15 +62,7 @@ const AdminOrder = () => {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        className={
-                          order.orderStatus === "Delivered"
-                            ? "bg-green-100 text-green-700"
-                            : order.orderStatus === "Cancelled"
-                            ? "bg-red-100 text-red-700"
-                            : order.orderStatus === "Shipped"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }
+                        className={getOrderStatusClass(order.orderStatus)}
                       >
                         {order.orderStatus}
                       </Badge>

@@ -2,7 +2,7 @@ import { Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { asyncLogoutUser } from "../../store/actions/userAction.jsx";
+import { asyncLogoutUser } from "../../store/actions/userAction.js";
 
 
 

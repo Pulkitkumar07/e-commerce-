@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { selectAddress } from '../../store/actions/addressAction.jsx';
+import { selectAddress } from '../../store/actions/addressAction.js';
 
 const AddressCard = ({ address, onEdit, onDelete }) => {
   const user = useSelector((state) => state.user.user?.username);
@@ -11,7 +11,6 @@ const AddressCard = ({ address, onEdit, onDelete }) => {
   const dispatch = useDispatch();
   if (!address) return null;
   const handleAddressID = (id) => {
-    
     dispatch(selectAddress(id));
   };
 
@@ -20,10 +19,10 @@ const AddressCard = ({ address, onEdit, onDelete }) => {
 
       <div className="flex flex-col lg:flex-row items-start lg:items-center gap-2">
 
-        <input
+      <input
       type="radio"
       name="address"
-      checked={selectedAddress === address}
+      checked={selectedAddress?._id === address._id}
       onChange={() => handleAddressID(address)}
       className="accent-black"
     />

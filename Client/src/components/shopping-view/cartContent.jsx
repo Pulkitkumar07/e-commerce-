@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Button } from "../ui/button";
 import { Trash2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { deleteCartItem } from "../../store/actions/cartAction.jsx";
+import { deleteCartItem } from "../../store/actions/cartAction.js";
 import { toast } from "react-toastify";
-import { updateCartItemQty } from "../../store/actions/cartAction.jsx";
+import { updateCartItemQty } from "../../store/actions/cartAction.js";
 
 const CartContent = ({ cartItem }) => {
   const dispatch = useDispatch();
@@ -110,4 +110,4 @@ const CartContent = ({ cartItem }) => {
   );
 };
 
-export default CartContent;  
+export default CartContent;

@@ -2,7 +2,7 @@ import express from 'express';
 import orderController from '../controllers/shop/order-controller.js'
 import orderProtect  from '../middleware/orderProtect.js';
 
-const router =express();
+const router = express.Router();
 
 router.post('/create', orderController.createOrder);
 router.post('/capture', orderController.capturePayment);

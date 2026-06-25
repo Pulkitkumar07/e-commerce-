@@ -1,4 +1,5 @@
 import axios from "../../api/api.jsx";
+import endpoints from "../../api/endpoints.js";
 import { toast } from "react-toastify";
 import { 
   getFeatureRequest, 
@@ -8,13 +9,14 @@ import {
   addFeatureSuccess,
   addFeatureFail 
 } from "../reducers/featureSlice.js";
+import getErrorMessage from "./getErrorMessage.js";
 
 export const uploadFeatureImage = (formData) => async (dispatch) => {
   try {
     dispatch(addFeatureRequest());
 
     const { data } = await axios.post(
-      "/api/admin/feature/add",
+      endpoints.admin.feature.add,
       formData,
       {
         headers: {
@@ -26,13 +28,15 @@ export const uploadFeatureImage = (formData) => async (dispatch) => {
     if (data.success) {
       dispatch(addFeatureSuccess(data.data));
       toast.success("Image successfully uploaded");
-      dispatch(getFeatureImages());
+      await dispatch(getFeatureImages());
+      return data.data;
     }
 
   } catch (error) {
-    const errorMsg = error.response?.data?.message || error.message;
+    const errorMsg = getErrorMessage(error, "Image upload failed");
     dispatch(addFeatureFail(errorMsg));
     toast.error(errorMsg);
+    throw error;
   }
 };
 
@@ -40,14 +44,16 @@ export const getFeatureImages = () => async (dispatch) => {
   try {
     dispatch(getFeatureRequest());
 
-    const { data } = await axios.get("/api/admin/feature/get");
+    const { data } = await axios.get(endpoints.admin.feature.get);
 
     if (data.success) {
       dispatch(getFeatureSuccess(data.data));
+      return data.data;
     }
 
   } catch (error) {
-    const errorMsg = error.response?.data?.message || error.message;
+    const errorMsg = getErrorMessage(error, "Error fetching feature images");
     dispatch(getFeatureFail(errorMsg));
+    throw error;
   }
 };

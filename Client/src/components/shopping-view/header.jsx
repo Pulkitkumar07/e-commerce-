@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect,  } from "react";
 import { HousePlug, Menu, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
@@ -11,9 +11,9 @@ import {
   SheetDescription,
 } from "../ui/sheet";
 import { useSelector, useDispatch } from "react-redux";
-import { asyncLogoutUser } from "../../store/actions/userAction.jsx";
+import { asyncLogoutUser } from "../../store/actions/userAction.js";
 import CartWrapper from "./cartWrapper";
-import { fetchCartItems } from "@/store/actions/cartAction";
+import { fetchCartItems } from "@/store/actions/cartAction.js";
 
 const Header = () => {
   const navigate = useNavigate();

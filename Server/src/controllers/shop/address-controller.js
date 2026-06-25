@@ -1,79 +1,70 @@
-import Address from '../../models/Address.js';
-export const addAddress = async (req, res) => {
-    try{
-        const { userId, address, city, pincode, phone, notes } = req.body;
-        if (!userId || !address || !city || !pincode || !phone) {
-            return res.status(400).json({ message: 'All fields except notes are required' });
-        }
-        const newAddress = new Address({
-            userId,
-            address,
-            city,
-            pincode,
-            phone,
-            notes
-        });
-        await newAddress.save();
-        res.status(201).json({ message: 'Address added successfully', address: newAddress });
+import Address from "../../models/Address.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import { sendError, sendSuccess } from "../../utils/apiResponse.js";
 
-    }catch(error){
-        console.log("err :" + error);
-        res.status(500).json({ message: 'Server error' });
+export const addAddress = asyncHandler(async (req, res) => {
+    const { userId, address, city, pincode, phone, notes } = req.body;
+
+    if (!userId || !address || !city || !pincode || !phone) {
+        return sendError(res, "All fields except notes are required", 400);
     }
-}
 
-export const fetchAllAddresses = async (req, res) => {
-    try{
-      const { userId } = req.params;
-      if (!userId) {
-          return res.status(400).json({ message: 'User ID is required' });
-      }
-      const addressesList = await Address.find({ userId });
-      res.status(200).json({ addresses: addressesList });
-    }catch(error){
-        console.log("err :" + error);
-        res.status(500).json({ message: 'Server error' });
+    const newAddress = new Address({
+        userId,
+        address,
+        city,
+        pincode,
+        phone,
+        notes,
+    });
+
+    await newAddress.save();
+    return sendSuccess(res, { address: newAddress }, "Address added successfully", 201);
+});
+
+export const fetchAllAddresses = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+
+    if (!userId) {
+        return sendError(res, "User ID is required", 400);
     }
-}
 
-export const editAddress = async (req, res) => {
-    try{
-        const { userId, addressId } = req.params;
-        const { address, city, pincode, phone, notes } = req.body;
-        if (!userId || !addressId) {
-            return res.status(400).json({ message: 'User ID and Address ID are required' });
-        }
-        const updatedAddress = await Address.findByIdAndUpdate(
-            addressId,
-            { userId, address, city, pincode, phone, notes },
-            { new: true }
-        );
-        
-        if (!updatedAddress) {
-            return res.status(404).json({ message: 'Address not found' });
-        }
-        res.status(200).json({ message: 'Address updated successfully', address: updatedAddress });
-    }catch(error){
-        console.log("err :" + error);
-        res.status(500).json({ message: 'Server error' });
+    const addressesList = await Address.find({ userId });
+    return sendSuccess(res, { addresses: addressesList }, "Addresses fetched");
+});
+
+export const editAddress = asyncHandler(async (req, res) => {
+    const { userId, addressId } = req.params;
+    const { address, city, pincode, phone, notes } = req.body;
+
+    if (!userId || !addressId) {
+        return sendError(res, "User ID and Address ID are required", 400);
     }
-}
 
-export const deleteAddress = async (req, res) => {
-    try{ 
-      const { userId, addressId } = req.params;
-      
-        if (!userId || !addressId) {
-            return res.status(400).json({ message: 'User ID and Address ID are required' });
-        }
-        const deletedAddress = await Address.findByIdAndDelete(addressId);
-        if (!deletedAddress) {
-            return res.status(404).json({ message: 'Address not found' });
-        }
-        res.status(200).json({ message: 'Address deleted successfully' });
-    }catch(error){
-        console.log("err :" + error);
-        res.status(500).json({ message: 'Server error' });
+    const updatedAddress = await Address.findByIdAndUpdate(
+        addressId,
+        { userId, address, city, pincode, phone, notes },
+        { new: true }
+    );
+
+    if (!updatedAddress) {
+        return sendError(res, "Address not found", 404);
     }
-}
 
+    return sendSuccess(res, { address: updatedAddress }, "Address updated successfully");
+});
+
+export const deleteAddress = asyncHandler(async (req, res) => {
+    const { userId, addressId } = req.params;
+
+    if (!userId || !addressId) {
+        return sendError(res, "User ID and Address ID are required", 400);
+    }
+
+    const deletedAddress = await Address.findByIdAndDelete(addressId);
+    if (!deletedAddress) {
+        return sendError(res, "Address not found", 404);
+    }
+
+    return sendSuccess(res, null, "Address deleted successfully");
+});

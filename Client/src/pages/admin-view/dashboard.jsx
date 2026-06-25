@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDispatch, useSelector } from "react-redux";
-import { uploadFeatureImage, getFeatureImages } from "@/store/actions/featureAction";
+import { uploadFeatureImage, getFeatureImages } from "@/store/actions/featureAction.js";
 import { Trash2, ImagePlus, Upload, Loader2, ImageIcon } from "lucide-react";
 
 const Dashboard = () => {
@@ -37,7 +37,7 @@ const Dashboard = () => {
   };
 
  
-  const handleDelete = (id) => {
+  const handleDelete = () => {
     if(window.confirm("Are you sure you want to delete this banner?")) {
       // dispatch(deleteFeatureImage(id));
     }

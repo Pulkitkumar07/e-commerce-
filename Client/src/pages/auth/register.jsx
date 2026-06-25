@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +10,8 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { asyncRegisterUser } from "../../store/actions/userAction.jsx";
+import { asyncRegisterUser } from "../../store/actions/userAction.js";
 
 const Register = () => {
   const navigate = useNavigate();

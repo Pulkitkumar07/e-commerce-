@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { asyncGetuserProfile } from "@/store/actions/userAction.jsx";
+import { asyncGetuserProfile } from "@/store/actions/userAction.js";
 import CheckAuth from "../components/common/check-auth.jsx";
 import { Navigate } from "react-router-dom";
 

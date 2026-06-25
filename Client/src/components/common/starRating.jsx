@@ -1,15 +1,9 @@
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { StarIcon } from "lucide-react";
-import { useEffect } from "react";
 
 const StarRating = ({ rating ,setRating, }) => {
   const [hover, setHover] = useState(0);
-  useEffect(() => {
-  if (rating === 0) {
-    setHover(0);
-  }
-}, [rating]);
 
   return (
     <div className="flex gap-2">
@@ -21,6 +15,8 @@ const StarRating = ({ rating ,setRating, }) => {
           onClick={() =>{ setRating(star);
             setHover(star)
           }}
+          onMouseEnter={() => setHover(star)}
+          onMouseLeave={() => setHover(0)}
          
         >
           <StarIcon

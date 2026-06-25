@@ -1,88 +1,62 @@
 import ProductReview from "../../models/Review.js";
-import Product from '../../models/productModel.js'
-import mongoose from "mongoose";
+import Product from "../../models/productModel.js";
 import Orders from "../../models/Order.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import { sendError, sendSuccess } from "../../utils/apiResponse.js";
 
-const addProductReview = async (req, res) => {
-    try {
-        const { productId, userId, userName, reviewMessage, reviewValue } = req.body;
+const addProductReview = asyncHandler(async (req, res) => {
+    const { productId, userId, userName, reviewMessage, reviewValue } = req.body;
 
-       
-        if (!productId || !userId || !userName || !reviewMessage || reviewValue === undefined) {
-            return res.status(400).json({
-                success: false,
-                message: "Validation Error: Please provide all fields (message and rating)."
-            });
-        }
-
-       
-        const Order = await Orders.findOne({ 
-            userId: userId, 
-            "cartItems.productId": productId, 
-            orderStatus: "Confirmed" 
-        });
-
-        if (!Order) {
-            return res.status(403).json({
-                success: false,
-                message: "You must purchase this item first."
-            });
-        }
-
-        
-        const checkExistingReview = await ProductReview.findOne({ productId, userId });
-        if (checkExistingReview) {
-            return res.status(400).json({
-                success: false,
-                message: "DUPLICATE: You have already reviewed this product."
-            });
-        }
-
-        const newReview = new ProductReview({ productId, userId, userName, reviewMessage, reviewValue });
-        await newReview.save();
-
-        
-        const reviews = await ProductReview.find({ productId });
-        const averageRating = reviews.reduce((sum, item) => sum + item.reviewValue, 0) / reviews.length;
-        
-        await Product.findByIdAndUpdate(productId, { averageRating });
-
-        res.status(201).json({
-            success: true,
-            message: "Review added successfully!",
-            data: newReview
-        });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: 'Server error' });
+    if (!productId || !userId || !userName || !reviewMessage || reviewValue === undefined) {
+        return sendError(res, "Please provide review message and rating", 400);
     }
-};
 
-const getProductReview = async (req, res) => {
-    try {
-        const {productId}=req.params;
-        if(!productId){
-            return res.status(404).json({
-                message:"Product id is not found "
-            })
-        }
-        const review =await ProductReview.find({productId})
-        
-        res.status(200).json({
-            message:"Found review successfully",
-            data:review
-        })
-    } catch (err) {
-        console.log("Server error", err)
-        res.status(500).json({
-            success: false,
-            message: 'Error'
-        })
+    const order = await Orders.findOne({
+        userId,
+        "cartItems.productId": productId,
+        orderStatus: "Confirmed",
+    });
+
+    if (!order) {
+        return sendError(res, "You must purchase this item first", 403);
     }
-}
+
+    const existingReview = await ProductReview.findOne({ productId, userId });
+    if (existingReview) {
+        return sendError(res, "You have already reviewed this product", 400);
+    }
+
+    const newReview = new ProductReview({
+        productId,
+        userId,
+        userName,
+        reviewMessage,
+        reviewValue,
+    });
+
+    await newReview.save();
+
+    const reviews = await ProductReview.find({ productId });
+    const averageRating = reviews.reduce((sum, item) => sum + item.reviewValue, 0) / reviews.length;
+
+    await Product.findByIdAndUpdate(productId, { averageRating });
+
+    return sendSuccess(res, newReview, "Review added successfully", 201);
+});
+
+const getProductReview = asyncHandler(async (req, res) => {
+    const { productId } = req.params;
+
+    if (!productId) {
+        return sendError(res, "Product id is required", 400);
+    }
+
+    const reviews = await ProductReview.find({ productId });
+
+    return sendSuccess(res, reviews, "Reviews fetched");
+});
 
 export default {
     addProductReview,
-    getProductReview
-}
+    getProductReview,
+};

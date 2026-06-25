@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from "react"; // Added useRef
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "../../api/api.jsx";
+import endpoints from "../../api/endpoints.js";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCartItems } from "@/store/actions/cartAction.jsx";
+import { fetchCartItems } from "@/store/actions/cartAction.js";
 
 const PaypalReturn = () => {
   const dispatch = useDispatch();
@@ -24,7 +25,7 @@ const PaypalReturn = () => {
     const executePayment = async () => {
       executedRef.current = true; 
       try {
-        const res = await axios.post("/api/shop/order/execute-payment", {
+        const res = await axios.post(endpoints.shop.orders.executePayment, {
           paymentId,
           payerId,
         });

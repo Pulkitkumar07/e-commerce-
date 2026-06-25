@@ -1,8 +1,10 @@
 import Address from '@/components/shopping-view/address'
+import CheckoutSummary from '@/components/shopping-view/checkoutSummary.jsx'
 import img from '../../assets/account.jpg'
 import { useSelector, useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
-import { createOrder, capturePayment } from '@/store/actions/orderAction.jsx'
+import { createOrder, capturePayment } from '@/store/actions/orderAction.js'
+import { buildOrderPayload, getCartItemsFromState, getCartSubtotal } from '@/lib/order.js'
 
 const ShoppingCheckout = () => {
 
@@ -12,23 +14,13 @@ const ShoppingCheckout = () => {
   const user = useSelector((state) => state.user?.user)
   const address = useSelector((state) => state.addressList.selectedAddress)
 
-  const cartItems =
-    cartState?.cartItems ||
-    cartState?.items ||
-    cartState?.cart ||
-    []
-
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  )
+  const cartItems = getCartItemsFromState(cartState)
+  const subtotal = getCartSubtotal(cartItems)
 
   const delivery = subtotal > 500 ? 0 : 0
   const total = subtotal + delivery
 
   const handleInitiatePayment = async () => {
-    console.log("cart",cartItems)
-
     if (!address) {
       toast.error("Please select a delivery address")
       return
@@ -39,43 +31,15 @@ const ShoppingCheckout = () => {
       return
     }
 
-    const orderDetails = {
+    const orderDetails = buildOrderPayload({
       userId: user?._id,
-
-      cartItems: cartItems.map((item) => ({
-        productId: item?.productId,
-        title: item?.title,
-        price: Number(item.salePrice > 0 ? item.salePrice : item.price),
-        quantity: Number(item.quantity),
-      })),
-
-      addressInfo: {
-        addressId: address?._id,
-        address: address?.address,
-        city: address?.city,
-        pincode: address?.pincode,
-        phone: address?.phone,
-        notes: address?.notes,
-      },
-
+      cartItems,
+      address,
       totalAmount: total,
-
-      orderStatus: "Pending",
-      paymentMethod: "PayPal",
-      paymentStatus: "Pending",
-
-      orderDate: new Date(),
-      orderUpdate: new Date(),
-
-      paymentId: "",
-      payerId: "",
-    }
+    })
 
     try {
-
-    
       const orderRes = await dispatch(createOrder(orderDetails));
-
       const orderId = orderRes?.orderId;
 
       if (!orderId) {
@@ -83,9 +47,7 @@ const ShoppingCheckout = () => {
         return;
       }
       sessionStorage.setItem("currentOrderId", orderId);
-      
 
-     
       const paymentRes = await dispatch(
         capturePayment({
           cartItems: orderDetails.cartItems,
@@ -95,8 +57,6 @@ const ShoppingCheckout = () => {
 
       const approvalUrl = paymentRes?.approvalUrl;
 
-      console.log("Approval URL:", approvalUrl);
-
       if (approvalUrl) {
         window.location.href = approvalUrl;
       } else {
@@ -104,8 +64,7 @@ const ShoppingCheckout = () => {
       }
 
     } catch (error) {
-      console.log(error)
-      toast.error("Something went wrong")
+      toast.error(error.normalizedMessage || "Something went wrong")
     }
   }
 
@@ -126,55 +85,13 @@ const ShoppingCheckout = () => {
           <Address />
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-sm border h-fit sticky top-6">
-
-          <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-
-          <div className="max-h-[250px] overflow-y-auto space-y-3 pr-1">
-            {cartItems.length === 0 ? (
-              <p className="text-gray-400 text-sm">Cart is empty</p>
-            ) : (
-              cartItems.map((item) => (
-                <div key={item.productId} className="flex items-center gap-3">
-                  <img src={item.image} alt={item.title} className="w-12 h-12 object-cover rounded-md" />
-
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{item.title}</p>
-                    <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                  </div>
-
-                  <p className="text-sm font-semibold">
-                    ₹{item.price * item.quantity}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="mt-4 space-y-2 text-sm text-gray-600">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>₹{subtotal}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Delivery</span>
-              <span>{delivery === 0 ? "Free" : `₹${delivery}`}</span>
-            </div>
-          </div>
-
-          <div className="border-t mt-4 pt-4 flex justify-between font-semibold text-lg">
-            <span>Total</span>
-            <span>₹{total}</span>
-          </div>
-
-          <button
-            onClick={handleInitiatePayment}
-            className="w-full mt-5 bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition"
-          >
-            Place Order
-          </button>
-        </div>
+        <CheckoutSummary
+          cartItems={cartItems}
+          subtotal={subtotal}
+          delivery={delivery}
+          total={total}
+          onPlaceOrder={handleInitiatePayment}
+        />
       </div>
     </div>
   )

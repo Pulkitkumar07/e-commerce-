@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/ta
 import ShopOrder from "../../components/shopping-view/order.jsx"
 import { useDispatch, useSelector } from "react-redux"
 import { useEffect } from "react"
-import { getAllOrders } from "../../store/actions/orderAction.jsx"
+import { getAllOrders } from "../../store/actions/orderAction.js"
 
 
 

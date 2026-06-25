@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { asyncFetchProducts } from "@/store/actions/adminaction";
+import { asyncFetchProducts } from "@/store/actions/adminaction.js";
 import { Edit3, Trash2, Box, Tag } from "lucide-react";
-import { asyncDeleteProduct } from "../../store/actions/adminaction.jsx";
+import { asyncDeleteProduct } from "../../store/actions/adminaction.js";
 
-const ProductLists = () => {
+const ProductLists = ({ onEdit }) => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.adminProduct.products);
 

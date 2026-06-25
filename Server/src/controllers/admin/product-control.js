@@ -1,12 +1,11 @@
 import { uploadToCloudinary } from "../../services/cloudinary.js";
 import Product from '../../models/productModel.js'
+import asyncHandler from "../../utils/asyncHandler.js";
+import { sendError, sendSuccess } from "../../utils/apiResponse.js";
 
 
 
-export const createProduct = async (req, res) => {
-  try {
-    console.log("data backend:", req.file);
-
+export const createProduct = asyncHandler(async (req, res) => {
     const {
       title,
       description,
@@ -19,15 +18,11 @@ export const createProduct = async (req, res) => {
 
    
     if (!title || !price || !stock) {
-      return res.status(400).json({
-        message: "Title, price and stock are required",
-      });
+      return sendError(res, "Title, price and stock are required", 400);
     }
 
     if (!req.file) {
-      return res.status(400).json({
-        message: "Product image is required",
-      });
+      return sendError(res, "Product image is required", 400);
     }
 
    
@@ -48,38 +43,20 @@ export const createProduct = async (req, res) => {
       imageUrl: result.secure_url,
     });
 
-    res.status(201).json({
-      message: "Product created successfully",
-      product,
-    });
-
-  } catch (error) {
-    console.error("Create product error:", error);
-    res.status(500).json({
-      message: "Failed to create product",
-    });
-  }
-};
+    return sendSuccess(res, product, "Product created successfully", 201);
+});
 
 
 
 
-export const fetchAllProducts = async (req, res) => {
-  try {
+export const fetchAllProducts = asyncHandler(async (req, res) => {
     const products = await Product.find({}).sort({ createdAt: -1 });
 
-    res.status(200).json({
-      products,
-    });
-  } catch (error) {
-    console.error("Fetch products:", error);
-    res.status(500).json({ message: "Error fetching products" });
-  }
-};
+    return sendSuccess(res, products, "Products fetched");
+});
 
 
-export const editProducts = async (req, res) => {
-  try {
+export const editProducts = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const {
       title,
@@ -93,7 +70,7 @@ export const editProducts = async (req, res) => {
 
     const product = await Product.findById(id);
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return sendError(res, "Product not found", 404);
     }
 
     if (title) product.title = title;
@@ -108,41 +85,24 @@ export const editProducts = async (req, res) => {
       const base64 = Buffer.from(req.file.buffer).toString("base64");
       const dataURI = `data:${req.file.mimetype};base64,${base64}`;
       const result = await uploadToCloudinary(dataURI);
-      product.image = result.secure_url;
+      product.imageUrl = result.secure_url;
     }
 
     const updatedProduct = await product.save(); 
 
-    res.status(200).json({
-      message: "Product updated successfully",
-      product: updatedProduct,
-    });
-
-  } catch (error) {
-    console.error("Edit product:", error);
-    res.status(500).json({ message: "Error editing product" });
-  }
-};
+    return sendSuccess(res, updatedProduct, "Product updated successfully");
+});
 
 
-export const deleteProducts = async (req, res) => {
-  try {
+export const deleteProducts = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const deletedProduct = await Product.findByIdAndDelete(id);
     if (!deletedProduct) {
-      return res.status(404).json({ message: "Product not found" });
+      return sendError(res, "Product not found", 404);
     }
 
-    res.status(200).json({
-      message: "Product deleted successfully",
-      product: deletedProduct,
-    });
-
-  } catch (error) {
-    console.error("Delete product:", error);
-    res.status(500).json({ message: "Error deleting product" });
-  }
-};
+    return sendSuccess(res, deletedProduct, "Product deleted successfully");
+});
 
 export default { createProduct, fetchAllProducts, editProducts, deleteProducts };

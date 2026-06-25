@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableHead, TableRow, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -6,33 +6,22 @@ import OrderDetails from "@/pages/shopping-view/OrderDetails.jsx";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { getOrderDetails } from "@/store/actions/orderAction";
+import { getOrderDetails } from "@/store/actions/orderAction.js";
 import { resetOrderDetails } from "@/store/reducers/orderSlice";
 
 const ShopOrder = ({ orders = [] }) => {
   const dispatch = useDispatch();
   const { orderDetails } = useSelector((state) => state.orderList);
-  const [openDetails, setOpenDetails] = useState(false);
 
   
   const handleOrderDetails = (orderId) => {
     dispatch(getOrderDetails(orderId));
   };
 
-
-  useEffect(() => {
-    if (orderDetails !== null) {
-      setOpenDetails(true);
+  const handleDialogChange = (isOpen) => {
+    if (!isOpen) {
+      dispatch(resetOrderDetails());
     }
-  }, [orderDetails]);
-
-
-  const handleCloseDialog = () => {
-    setOpenDetails(false);
-    
-    setTimeout(() => {
-        dispatch(resetOrderDetails());
-    }, 200);
   };
 
   return (
@@ -116,7 +105,7 @@ const ShopOrder = ({ orders = [] }) => {
       </Card>
 
       
-      <Dialog open={openDetails} onOpenChange={handleCloseDialog}>
+      <Dialog open={Boolean(orderDetails)} onOpenChange={handleDialogChange}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader className="border-b pb-3">
             <DialogTitle className="text-xl text-center">Order Details</DialogTitle>

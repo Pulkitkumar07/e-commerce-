@@ -11,7 +11,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { asyncloginUser } from "../../store/actions/userAction.jsx";
+import { asyncloginUser } from "../../store/actions/userAction.js";
 import { useDispatch } from "react-redux";
 
 

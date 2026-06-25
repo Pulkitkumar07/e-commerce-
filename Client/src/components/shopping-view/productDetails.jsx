@@ -5,18 +5,20 @@ import { Button } from "../ui/button";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { StarIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { addtoCart } from "../../store/actions/cartAction.jsx";
-import { asyncClearProductDetails } from "@/store/actions/productaction.jsx";
+import { asyncClearProductDetails } from "@/store/actions/productaction.js";
 import { toast } from "react-toastify";
 import { Label } from "@/components/ui/label";
 import StarRating from "../common/starRating.jsx";
 import { useState, useEffect } from "react";
-import { addReview, getReview } from "@/store/actions/reviewAction";
+import { addReview, getReview } from "@/store/actions/reviewAction.js";
+import useAddToCart from "@/hooks/useAddToCart.js";
 
 const ProductDetails = ({ open, setDetailsOpen, productDetails }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user?.user);
+  const cartItems = useSelector((state) => state.cartProduct.cartItems);
   const { reviews } = useSelector((state) => state.review);
+  const addProductToCart = useAddToCart({ userId: user?._id, cartItems });
 
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
@@ -33,19 +35,8 @@ const ProductDetails = ({ open, setDetailsOpen, productDetails }) => {
 
   if (!productDetails) return null;
 
-  // FIX: handleAddToCart now handles the Toast correctly
   const handleAddToCart = () => {
-    if (!user?._id) {
-      return toast.error("Please login first");
-    }
-    
-    dispatch(addtoCart(user._id, productId, 1))
-      .then(() => {
-        toast.success("Product added to cart!");
-      })
-      .catch(() => {
-        toast.error("Failed to add to cart");
-      });
+    addProductToCart({ productId, stock: productDetails?.stock });
   };
 
   const handleReviewSubmit = () => {

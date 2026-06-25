@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import FeatureController from "../controllers/admin/Feature-controller.js";
+import FeatureController from "../controllers/admin/featureController.js";
 
 const router = express.Router();
 

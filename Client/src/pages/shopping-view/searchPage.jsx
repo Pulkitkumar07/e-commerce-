@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getSearchResults } from "@/store/actions/searchAction";
+import { getSearchResults } from "@/store/actions/searchAction.js";
 import { useSearchParams } from "react-router-dom";
 import Productlist from "../shopping-view/productlist.jsx";
-import { asyncFetchProductDetails } from "@/store/actions/productaction.jsx";
-import { addtoCart } from "@/store/actions/cartAction.jsx";
+import { asyncFetchProductDetails } from "@/store/actions/productaction.js";
+import { addtoCart } from "@/store/actions/cartAction.js";
 import { toast } from "react-toastify";
 import ProductDetails from "@/components/shopping-view/productDetails.jsx";
 import { clearResults } from "@/store/reducers/searchSlice.js";
 const SearchPage = () => {
-  const [keyword, setKeyword] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
+  const [keyword, setKeyword] = useState(searchParams.get("keyword") || "");
   const dispatch = useDispatch();
 
   const { isLoading, searchResults } = useSelector(
@@ -27,17 +27,6 @@ const SearchPage = () => {
     dispatch(clearResults());   
   };
 }, [dispatch]);
-
-  useEffect(() => {
-    const query = searchParams.get("keyword");
-    if (query) {
-      setKeyword(query);
-    }
-  }, []);
-
-    useEffect(() => {
-    if (productDetails !== null) setDetailsOpen(true)
-  }, [productDetails])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -60,6 +49,7 @@ const SearchPage = () => {
 
 
   const handleProductDetails = (id) => {
+    setDetailsOpen(true);
     dispatch(asyncFetchProductDetails(id));
   };
 

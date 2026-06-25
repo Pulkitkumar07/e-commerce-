@@ -1,88 +1,97 @@
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import asyncHandler from '../utils/asyncHandler.js';
+import { sendError, sendSuccess } from '../utils/apiResponse.js';
+import { createAuthToken, formatUser, getAuthCookieOptions } from '../utils/auth.js';
 
+const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
 
-export const registerUser = async (req, res) => {
+const isValidPassword = (password) => {
+    return typeof password === 'string' && password.length >= 6;
+};
 
-    const { username, email, password } = req.body;
-    try {
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({
-            username,
-            email,
-            password: hashedPassword,
-        });
-        await newUser.save();
-        res.status(201).json({ message: 'User registered successfully' });
+export const registerUser = asyncHandler(async (req, res) => {
 
-    } catch (error) {
-        console.log("err :" + error);
-        res.status(500).json({ message: 'Server error' });
+    const username = req.body.username?.trim();
+    const email = req.body.email?.trim().toLowerCase();
+    const { password } = req.body;
 
+    if (!username || !email || !password) {
+        return sendError(res, 'Username, email and password are required', 400);
     }
 
-}
-
-export const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-
-
-    try {
-        const user = await User.findOne({ email });
-
-
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid email' });
-        }
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid password' });
-        }
-        const token = jwt.sign( { userId: user._id }, process.env.JWT_SECRET,{ expiresIn: '7d' } );
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 604800000,
-        });
-
-        res.status(200).json({ user: { id: user._id, username: user.username, email: user.email } });
-
-    } catch (error) {
-        console.log("err :" + error);
-        res.status(500).json({ message: 'Server error' });
-
+    if (!isValidEmail(email)) {
+        return sendError(res, 'Please enter a valid email address', 400);
     }
 
-}
+    if (!isValidPassword(password)) {
+        return sendError(res, 'Password must be at least 6 characters', 400);
+    }
+
+    const existingUser = await User.findOne({
+        $or: [{ email }, { username }],
+    });
+
+    if (existingUser) {
+        return sendError(res, 'Username or email already exists', 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+        username,
+        email,
+        password: hashedPassword,
+    });
+
+    await newUser.save();
+    return sendSuccess(res, null, 'User registered successfully', 201);
+});
+
+export const loginUser = asyncHandler(async (req, res) => {
+    const email = req.body.email?.trim().toLowerCase();
+    const { password } = req.body;
+
+    if (!email || !password) {
+        return sendError(res, 'Email and password are required', 400);
+    }
+
+    if (!isValidEmail(email)) {
+        return sendError(res, 'Please enter a valid email address', 400);
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return sendError(res, 'Invalid email or password', 401);
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        return sendError(res, 'Invalid email or password', 401);
+    }
+
+    const token = createAuthToken(user);
+
+    res.cookie('token', token, getAuthCookieOptions());
+
+    return sendSuccess(res, { user: formatUser(user) }, 'Login successful');
+});
 
 export const logoutUser = (req, res) => {
-    res.clearCookie('token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-    });
-    res.status(200).json({ message: 'Logged out successfully' });
+    res.clearCookie('token', getAuthCookieOptions());
+    return sendSuccess(res, null, 'Logged out successfully');
 }
 
-export const getuserprofile = async (req, res) => {
-    try {
-        const user = await User.findById(req.userId).select('-password');
-       
-        
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({ user });
-    } catch (error) {
-        console.log("err :" + error);
-        res.status(500).json({ message: 'Server error' });
+export const getuserprofile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user.id).select('-password');
+
+    if (!user) {
+        return sendError(res, 'User not found', 404);
     }
-}
+
+    return sendSuccess(res, { user: formatUser(user) }, 'User profile fetched');
+});
 
 export default { registerUser, loginUser, logoutUser };

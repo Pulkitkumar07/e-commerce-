@@ -1,7 +1,7 @@
-import exprees from 'express';
+import express from 'express';
 import searchProduct from '../controllers/shop/searchController.js';
 
-const router=exprees.Router();
+const router=express.Router();
 
 router.get("/:keyword",searchProduct);
 

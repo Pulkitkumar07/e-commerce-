@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { X, ImagePlus, Plus, PackagePlus } from "lucide-react";
-import { asyncCreateProduct, asyncFetchProducts } from "@/store/actions/adminaction";
+import { asyncCreateProduct, asyncFetchProducts } from "@/store/actions/adminaction.js";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import ProductLists from "./product-tile.jsx";
@@ -20,7 +20,7 @@ const Product = () => {
   const [preview, setPreview] = useState(null);
   const [showSalePrice, setShowSalePrice] = useState(false);
 
-  const { register, handleSubmit, reset, setValue, clearErrors, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, clearErrors } = useForm();
 
   useEffect(() => {
     dispatch(asyncFetchProducts());
@@ -31,6 +31,19 @@ const Product = () => {
     setPreview(URL.createObjectURL(file));
     setValue("image", file, { shouldValidate: true });
     clearErrors("image");
+  };
+
+  const handleEditProduct = (product) => {
+    setValue("title", product.title || "");
+    setValue("description", product.description || "");
+    setValue("category", product.category || "");
+    setValue("brand", product.brand || "");
+    setValue("price", product.price || "");
+    setValue("stock", product.stock || "");
+    setValue("salePrice", product.salePrice || "");
+    setShowSalePrice(Boolean(product.salePrice));
+    setPreview(product.imageUrl || null);
+    setOpen(true);
   };
 
   const onSubmit = async (data) => {
@@ -67,7 +80,7 @@ const Product = () => {
    
       <main className="p-2 md:p-6  min-h-screen">
         <div className=" rounded-sm border border-gray-200">
-          <ProductLists /> 
+          <ProductLists onEdit={handleEditProduct} />
         </div>
       </main>
 

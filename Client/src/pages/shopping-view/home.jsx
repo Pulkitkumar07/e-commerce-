@@ -1,15 +1,15 @@
 import { BabyIcon, ChevronLeft, CloudLightning, ShirtIcon, UmbrellaIcon, WatchIcon } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { useEffect, useState } from 'react'
-import { asyncFetchProducts, asyncFetchProductDetails } from '@/store/actions/productaction'
+import { asyncFetchProducts, asyncFetchProductDetails } from '@/store/actions/productaction.js'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import ProductDetails from '../../components/shopping-view/productDetails.jsx'
-import { addtoCart } from "../../store/actions/cartAction.jsx"
+import { addtoCart } from "../../store/actions/cartAction.js"
 import { toast } from "react-toastify"
 import { Link } from "react-router-dom";
-import { asyncGetuserProfile } from '../../store/actions/userAction.jsx'
-import { getFeatureImages } from "@/store/actions/featureAction";
+import { asyncGetuserProfile } from '../../store/actions/userAction.js'
+import { getFeatureImages } from "@/store/actions/featureAction.js";
 
 const ShoppingHome = () => {
   const navigate = useNavigate();
